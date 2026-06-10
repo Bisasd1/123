@@ -1,0 +1,410 @@
+{
+  "id": "graph_pythagorean_area_golden",
+  "problem_id": "problem_demo_pythagorean",
+  "pattern_id": "pythagorean_area_proof",
+  "version": 1,
+  "parent_version_id": null,
+  "change_summary": "demo golden graph: pythagorean area proof",
+  "title": "勾股定理面积法完整图景",
+  "contexts": [
+    {
+      "id": "ctx_root",
+      "parent_context_id": null,
+      "assumptions": [
+        "a>0",
+        "b>0",
+        "\\triangle ABC\\text{ is right}",
+        "AB=a",
+        "AC=b",
+        "BC=c"
+      ],
+      "introduced_symbols": [
+        "a",
+        "b",
+        "c",
+        "triangle_ABC"
+      ],
+      "active_case": null
+    }
+  ],
+  "symbols": [
+    {
+      "id": "a",
+      "latex": "a",
+      "name": "直角边 a",
+      "role": "leg",
+      "definition_node_id": "setup_triangle",
+      "aliases": [
+        "AB"
+      ]
+    },
+    {
+      "id": "b",
+      "latex": "b",
+      "name": "直角边 b",
+      "role": "leg",
+      "definition_node_id": "setup_triangle",
+      "aliases": [
+        "AC"
+      ]
+    },
+    {
+      "id": "c",
+      "latex": "c",
+      "name": "斜边 c",
+      "role": "hypotenuse",
+      "definition_node_id": "setup_triangle",
+      "aliases": [
+        "BC"
+      ]
+    },
+    {
+      "id": "triangle_ABC",
+      "latex": "\\triangle ABC",
+      "name": "直角三角形",
+      "role": "right_triangle",
+      "definition_node_id": "setup_triangle",
+      "aliases": []
+    },
+    {
+      "id": "outer_square",
+      "latex": "S",
+      "name": "外部大正方形",
+      "role": "outer_square",
+      "definition_node_id": "construct_outer_square",
+      "aliases": []
+    },
+    {
+      "id": "center_square",
+      "latex": "Q",
+      "name": "中心正方形",
+      "role": "center_square",
+      "definition_node_id": "lemma_center_square",
+      "aliases": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "goal_pythagorean",
+      "context_id": "ctx_root",
+      "node_type": "goal",
+      "title": "目标:勾股等式",
+      "statement_latex": "a^2+b^2=c^2",
+      "statement_natural": "目标是证明直角三角形两条直角边平方和等于斜边平方。",
+      "statement_canonical": {
+        "claim_type": "equality",
+        "left": "a^2+b^2",
+        "right": "c^2"
+      },
+      "symbols_used": [
+        "a",
+        "b",
+        "c"
+      ],
+      "local_assumptions": [],
+      "source_refs": [
+        "DEF-right-triangle"
+      ],
+      "source_level": "conclusion",
+      "foundation_anchor_ids": [
+        "DEF-right-triangle"
+      ],
+      "validation_status": "valid",
+      "explanation": "目标来自直角三角形的经典勾股定理。",
+      "pitfalls": []
+    },
+    {
+      "id": "setup_triangle",
+      "context_id": "ctx_root",
+      "node_type": "setup",
+      "title": "设定直角三角形",
+      "statement_latex": "AB=a,\\ AC=b,\\ BC=c,\\ \\angle A=90^\\circ",
+      "statement_natural": "取直角三角形 ABC,两条直角边记为 a,b,斜边记为 c。",
+      "statement_canonical": {
+        "claim_type": "instantiation",
+        "object": "right_triangle_ABC"
+      },
+      "symbols_used": [
+        "a",
+        "b",
+        "c",
+        "triangle_ABC"
+      ],
+      "local_assumptions": [
+        "a>0",
+        "b>0"
+      ],
+      "source_refs": [
+        "DEF-right-triangle"
+      ],
+      "source_level": "definition",
+      "foundation_anchor_ids": [
+        "DEF-right-triangle"
+      ],
+      "validation_status": "valid",
+      "explanation": "这是证明的几何对象来源;后续所有面积项都绑定到这个三角形。",
+      "pitfalls": [
+        "若 a 或 b 为 0,三角形会退化。"
+      ]
+    },
+    {
+      "id": "construct_outer_square",
+      "context_id": "ctx_root",
+      "node_type": "construction",
+      "title": "构造外部大正方形",
+      "statement_latex": "S\\text{ is a square with side }a+b",
+      "statement_natural": "构造一个边长为 a+b 的大正方形 S。",
+      "statement_canonical": {
+        "claim_type": "instantiation",
+        "object": "outer_square",
+        "property": "side=a+b"
+      },
+      "symbols_used": [
+        "a",
+        "b",
+        "outer_square"
+      ],
+      "local_assumptions": [],
+      "source_refs": [
+        "DEF-square-area"
+      ],
+      "source_level": "definition",
+      "foundation_anchor_ids": [
+        "DEF-square-area"
+      ],
+      "validation_status": "valid",
+      "explanation": "外部正方形把几何问题转化成同一总面积的两种表达。",
+      "pitfalls": []
+    },
+    {
+      "id": "place_four_triangles",
+      "context_id": "ctx_root",
+      "node_type": "construction",
+      "title": "放置四个全等三角形",
+      "statement_latex": "S=T_1\\sqcup T_2\\sqcup T_3\\sqcup T_4\\sqcup Q",
+      "statement_natural": "把四个与 △ABC 全等的直角三角形放入 S,剩余中心区域记为 Q。",
+      "statement_canonical": {
+        "claim_type": "instantiation",
+        "object": "area_dissection"
+      },
+      "symbols_used": [
+        "triangle_ABC",
+        "outer_square",
+        "center_square"
+      ],
+      "local_assumptions": [],
+      "source_refs": [
+        "AX-area-additivity",
+        "LEM-right-triangle-area"
+      ],
+      "source_level": "derived_lemma",
+      "foundation_anchor_ids": [
+        "AX-area-additivity",
+        "LEM-right-triangle-area"
+      ],
+      "validation_status": "valid",
+      "explanation": "这个构造产生面积分解所需的全部区域。",
+      "pitfalls": [
+        "需要区域互不重叠并填满 S。"
+      ]
+    },
+    {
+      "id": "lemma_center_square",
+      "context_id": "ctx_root",
+      "node_type": "lemma",
+      "title": "中心区域是边长 c 的正方形",
+      "statement_latex": "Q\\text{ is a square},\\quad side(Q)=c,\\quad area(Q)=c^2",
+      "statement_natural": "四个三角形的斜边围出中心区域,中心区域是边长 c 的正方形。",
+      "statement_canonical": {
+        "claim_type": "operator_property",
+        "object": "center_square",
+        "property": "square_side_c"
+      },
+      "symbols_used": [
+        "c",
+        "center_square"
+      ],
+      "local_assumptions": [],
+      "source_refs": [
+        "LEM-center-square",
+        "DEF-square-area"
+      ],
+      "source_level": "derived_lemma",
+      "foundation_anchor_ids": [
+        "LEM-center-square",
+        "DEF-square-area"
+      ],
+      "validation_status": "valid",
+      "explanation": "四条边都是斜边 c;相邻锐角互补给出中心角 90°,所以 Q 是边长 c 的正方形。",
+      "pitfalls": [
+        "不能只凭图像直觉断言 Q 是正方形。"
+      ]
+    },
+    {
+      "id": "calc_area_equation",
+      "context_id": "ctx_root",
+      "node_type": "calculation",
+      "title": "建立面积分解等式",
+      "statement_latex": "(a+b)^2=4\\cdot\\frac{ab}{2}+c^2",
+      "statement_natural": "同一个大正方形的面积等于四个直角三角形面积加中心正方形面积。",
+      "statement_canonical": {
+        "claim_type": "equality",
+        "left": "(a+b)^2",
+        "right": "4*ab/2+c^2"
+      },
+      "symbols_used": [
+        "a",
+        "b",
+        "c",
+        "outer_square",
+        "center_square"
+      ],
+      "local_assumptions": [],
+      "source_refs": [
+        "DEF-square-area",
+        "LEM-right-triangle-area",
+        "AX-area-additivity"
+      ],
+      "source_level": "calculation",
+      "foundation_anchor_ids": [
+        "DEF-square-area",
+        "LEM-right-triangle-area",
+        "AX-area-additivity"
+      ],
+      "validation_status": "valid",
+      "explanation": "这是面积法的核心桥梁:把图形区域绑定到公式项。",
+      "pitfalls": [
+        "必须确认四个三角形与中心区域确实组成整个 S。"
+      ]
+    },
+    {
+      "id": "calc_simplify",
+      "context_id": "ctx_root",
+      "node_type": "calculation",
+      "title": "代数化简",
+      "statement_latex": "a^2+2ab+b^2=2ab+c^2\\implies a^2+b^2=c^2",
+      "statement_natural": "展开 (a+b)^2 并两边同时减去 2ab,得到 a²+b²=c²。",
+      "statement_canonical": {
+        "claim_type": "computation",
+        "from": "area_equation",
+        "to": "a^2+b^2=c^2"
+      },
+      "symbols_used": [
+        "a",
+        "b",
+        "c"
+      ],
+      "local_assumptions": [],
+      "source_refs": [
+        "ALG-expand-square"
+      ],
+      "source_level": "calculation",
+      "foundation_anchor_ids": [
+        "ALG-expand-square"
+      ],
+      "validation_status": "valid",
+      "explanation": "这一节点只保留关键代数步骤,具体展开属于节点细节而不是主图节点。",
+      "pitfalls": [
+        "注意 4·ab/2=2ab。"
+      ]
+    },
+    {
+      "id": "final_pythagorean",
+      "context_id": "ctx_root",
+      "node_type": "conclusion",
+      "title": "得到勾股定理",
+      "statement_latex": "a^2+b^2=c^2",
+      "statement_natural": "因此任意直角三角形都满足勾股等式。",
+      "statement_canonical": {
+        "claim_type": "equality",
+        "left": "a^2+b^2",
+        "right": "c^2"
+      },
+      "symbols_used": [
+        "a",
+        "b",
+        "c"
+      ],
+      "local_assumptions": [],
+      "source_refs": [],
+      "source_level": "conclusion",
+      "foundation_anchor_ids": [
+        "DEF-right-triangle",
+        "AX-area-additivity",
+        "ALG-expand-square"
+      ],
+      "validation_status": "valid",
+      "explanation": "把面积构造和代数化简汇总回目标。",
+      "pitfalls": []
+    }
+  ],
+  "edges": [
+    {
+      "source_id": "goal_pythagorean",
+      "target_id": "setup_triangle",
+      "relation": "specializes",
+      "justification": "目标决定需要固定直角三角形记号。"
+    },
+    {
+      "source_id": "setup_triangle",
+      "target_id": "construct_outer_square",
+      "relation": "instantiates",
+      "justification": "使用两条直角边 a,b 构造边长 a+b。"
+    },
+    {
+      "source_id": "setup_triangle",
+      "target_id": "place_four_triangles",
+      "relation": "instantiates",
+      "justification": "复制原直角三角形。"
+    },
+    {
+      "source_id": "construct_outer_square",
+      "target_id": "place_four_triangles",
+      "relation": "uses_definition",
+      "justification": "放置发生在外部正方形内。"
+    },
+    {
+      "source_id": "place_four_triangles",
+      "target_id": "lemma_center_square",
+      "relation": "uses_lemma",
+      "justification": "中心区域来自四个三角形的排列。"
+    },
+    {
+      "source_id": "construct_outer_square",
+      "target_id": "calc_area_equation",
+      "relation": "computes",
+      "justification": "外部正方形面积为 (a+b)^2。"
+    },
+    {
+      "source_id": "place_four_triangles",
+      "target_id": "calc_area_equation",
+      "relation": "computes",
+      "justification": "四个三角形总面积为 4·ab/2。"
+    },
+    {
+      "source_id": "lemma_center_square",
+      "target_id": "calc_area_equation",
+      "relation": "computes",
+      "justification": "中心正方形面积为 c²。"
+    },
+    {
+      "source_id": "calc_area_equation",
+      "target_id": "calc_simplify",
+      "relation": "equivalent_rewrite",
+      "justification": "展开平方并消去 2ab。"
+    },
+    {
+      "source_id": "goal_pythagorean",
+      "target_id": "final_pythagorean",
+      "relation": "proves_subgoal",
+      "justification": "最终结果匹配目标。"
+    },
+    {
+      "source_id": "calc_simplify",
+      "target_id": "final_pythagorean",
+      "relation": "concludes",
+      "justification": "由化简后的等式得到结论。"
+    }
+  ],
+  "obligations": []
+}

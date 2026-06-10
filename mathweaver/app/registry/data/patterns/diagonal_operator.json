@@ -1,0 +1,279 @@
+{
+  "id": "diagonal_operator_spectral_classification",
+  "name": "对角(乘法)算子谱分类",
+  "domain": "functional_analysis",
+  "keywords": [
+    "乘法算子",
+    "对角算子",
+    "谱",
+    "点谱",
+    "连续谱",
+    "剩余谱",
+    "预解",
+    "M_a",
+    "a_n x_n",
+    "multiplication operator",
+    "diagonal operator",
+    "spectrum",
+    "ell^2",
+    "\\ell^2",
+    "l2"
+  ],
+  "required_objects": [
+    {
+      "name": "H",
+      "latex": "\\ell^2",
+      "kind": "space"
+    },
+    {
+      "name": "a",
+      "latex": "(a_n)",
+      "kind": "sequence"
+    },
+    {
+      "name": "M_a",
+      "latex": "M_a",
+      "kind": "operator"
+    },
+    {
+      "name": "lambda",
+      "latex": "\\lambda",
+      "kind": "scalar"
+    }
+  ],
+  "template_symbols": [
+    {
+      "id": "a_seq",
+      "latex": "(a_n)",
+      "name": "对角序列",
+      "role": "diagonal_sequence",
+      "aliases": [
+        "a_n",
+        "\\{a_n\\}"
+      ]
+    },
+    {
+      "id": "M_a",
+      "latex": "M_a",
+      "name": "乘法算子",
+      "role": "operator",
+      "aliases": [
+        "T",
+        "M"
+      ]
+    },
+    {
+      "id": "A",
+      "latex": "A",
+      "name": "对角元集合",
+      "role": "set_of_diagonal_entries",
+      "aliases": [
+        "\\{a_n : n\\in\\mathbb N\\}",
+        "S"
+      ]
+    },
+    {
+      "id": "Z_lambda",
+      "latex": "Z_\\lambda",
+      "name": "命中坐标集",
+      "role": "coincidence_set",
+      "aliases": [
+        "\\{n : a_n = \\lambda\\}"
+      ]
+    },
+    {
+      "id": "m_lambda",
+      "latex": "m_\\lambda",
+      "name": "最小距离",
+      "role": "distance_to_diagonal",
+      "aliases": [
+        "\\inf_n |a_n-\\lambda|",
+        "\\operatorname{dist}(\\lambda, A)"
+      ]
+    },
+    {
+      "id": "lambda",
+      "latex": "\\lambda",
+      "name": "谱参数",
+      "role": "spectral_parameter",
+      "aliases": [
+        "\\mu",
+        "z"
+      ]
+    },
+    {
+      "id": "l2",
+      "latex": "\\ell^2",
+      "name": "底空间",
+      "role": "hilbert_space",
+      "aliases": [
+        "H",
+        "\\ell_2"
+      ]
+    },
+    {
+      "id": "c00",
+      "latex": "c_{00}",
+      "name": "有限支撑序列",
+      "role": "dense_subspace",
+      "aliases": []
+    },
+    {
+      "id": "e_n",
+      "latex": "e_n",
+      "name": "标准基",
+      "role": "standard_basis",
+      "aliases": [
+        "e_k"
+      ]
+    }
+  ],
+  "skeleton": {
+    "contexts": [
+      {
+        "id": "ctx_root",
+        "assumptions": [
+          "(a_n)\\subset\\mathbb C 给定",
+          "M_a 取最大定义域"
+        ]
+      },
+      {
+        "id": "ctx_generic_b",
+        "parent_context_id": "ctx_root",
+        "assumptions": [
+          "b=(b_n) 任意复序列,\\ M_b x=(b_n x_n)"
+        ],
+        "introduced_symbols": [
+          "b"
+        ]
+      },
+      {
+        "id": "ctx_case_resolvent",
+        "parent_context_id": "ctx_root",
+        "active_case": "A",
+        "assumptions": [
+          "\\inf_n|a_n-\\lambda|>0"
+        ]
+      },
+      {
+        "id": "ctx_case_point",
+        "parent_context_id": "ctx_root",
+        "active_case": "B",
+        "assumptions": [
+          "\\exists k:\\ a_k=\\lambda"
+        ]
+      },
+      {
+        "id": "ctx_case_continuous",
+        "parent_context_id": "ctx_root",
+        "active_case": "C",
+        "assumptions": [
+          "\\lambda\\notin A",
+          "\\inf_n|a_n-\\lambda|=0"
+        ]
+      }
+    ],
+    "required_node_slots": [
+      "define_core_objects",
+      "domain_dense",
+      "diagonal_action",
+      "shift_identity",
+      "generic_kernel",
+      "generic_range",
+      "generic_range_closure",
+      "generic_invertibility",
+      "instantiate_b",
+      "case_resolvent",
+      "case_point",
+      "case_continuous",
+      "cases_cover",
+      "residual_empty",
+      "final_classification"
+    ],
+    "standard_obligations": [
+      {
+        "id": "O_inj",
+        "description": "证明 M_a-λI 单射",
+        "for_slot": "case_continuous"
+      },
+      {
+        "id": "O_dense",
+        "description": "证明值域稠密",
+        "for_slot": "case_continuous"
+      },
+      {
+        "id": "O_notfull",
+        "description": "证明值域 ≠ ℓ²",
+        "for_slot": "case_continuous"
+      },
+      {
+        "id": "O_domain",
+        "description": "证明 D(M_a) 在 ℓ² 中稠密",
+        "for_slot": "final_classification"
+      }
+    ]
+  },
+  "lint_rules": [
+    "closure_confusion",
+    "division_by_possible_zero",
+    "continuous_spectrum_obligations",
+    "conclusion_traceability",
+    "cross_case_dependency"
+  ],
+  "common_pitfalls": [
+    "把 λ∉A 当成 λ∉Ā:每项非零不等于有正下界(反例 a_n=1/n, λ=0)",
+    "在 a_n=λ 的坐标上做除法 x_n = y_n/(a_n-λ)",
+    "只验证单射+稠密就下连续谱结论,漏掉『值域不是全空间』",
+    "把谱 σ 与点谱 σ_p 混用",
+    "忽略无界情形的定义域问题(D(M_a) 是否稠密)"
+  ],
+  "unit_tests": [
+    {
+      "name": "a_n = n",
+      "a_n": "n",
+      "expected": {
+        "sigma_p": "\\{1,2,3,\\dots\\}",
+        "sigma_c": "\\varnothing",
+        "closure_adds": "无新点"
+      }
+    },
+    {
+      "name": "a_n = 1/n",
+      "a_n": "1/n",
+      "expected": {
+        "sigma_p": "\\{1,\\tfrac12,\\tfrac13,\\dots\\}",
+        "sigma_c": "\\{0\\}",
+        "closure_adds": "0"
+      }
+    },
+    {
+      "name": "a_n = (-1)^n",
+      "a_n": "(-1)^n",
+      "expected": {
+        "sigma_p": "\\{-1,1\\}",
+        "sigma_c": "\\varnothing",
+        "closure_adds": "无新点"
+      }
+    }
+  ],
+  "exposition_views": [
+    {
+      "id": "spectrum_plane",
+      "name": "复平面谱图",
+      "view_type": "diagram",
+      "renderer": "svg"
+    },
+    {
+      "id": "node_capsules",
+      "name": "节点细节胶囊",
+      "view_type": "node_detail",
+      "renderer": "html"
+    },
+    {
+      "id": "concept_trace",
+      "name": "定义追溯",
+      "view_type": "trace",
+      "renderer": "html"
+    }
+  ]
+}

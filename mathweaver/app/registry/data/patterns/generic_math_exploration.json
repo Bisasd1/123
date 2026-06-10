@@ -1,0 +1,43 @@
+{
+  "id": "generic_math_exploration",
+  "name": "通用数学草稿图谱",
+  "domain": "generic_math",
+  "keywords": [
+    "数学", "定理", "公式", "定义", "证明", "推导", "解释", "性质",
+    "微积分", "代数", "几何", "概率", "统计", "拓扑", "群论", "环论",
+    "泰勒", "欧拉", "傅里叶", "拉普拉斯", "矩阵", "向量", "函数",
+    "theorem", "formula", "definition", "proof", "derive", "explain"
+  ],
+  "required_objects": [],
+  "template_symbols": [
+    {"id": "topic", "latex": "T", "name": "主题", "role": "topic", "aliases": []},
+    {"id": "claim", "latex": "C", "name": "核心命题", "role": "claim", "aliases": []}
+  ],
+  "skeleton": {
+    "contexts": [
+      {"id": "ctx_root", "assumptions": ["用户输入的是一个数学主题或问题"], "introduced_symbols": ["topic", "claim"]}
+    ],
+    "required_node_slots": [
+      "identify_topic",
+      "state_core_question",
+      "list_prerequisites",
+      "explain_main_idea",
+      "draft_conclusion"
+    ],
+    "standard_obligations": []
+  },
+  "lint_rules": [],
+  "common_pitfalls": [
+    "通用草稿图谱不等价于严格证明",
+    "节点中的数学断言需要人工复核或后续补充专用 pattern",
+    "若要获得可验证证明,应为该题型补充 foundation 与 validator"
+  ],
+  "unit_tests": [
+    {"name": "微积分基本定理", "input": "解释微积分基本定理"},
+    {"name": "泰勒公式", "input": "说说泰勒公式"},
+    {"name": "群论", "input": "群论是什么"}
+  ],
+  "animation_paths": [
+    {"id": "generic_overview_story", "name": "通用数学主题概览", "conclusion_slot": "draft_conclusion"}
+  ]
+}

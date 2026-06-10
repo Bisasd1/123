@@ -1,0 +1,53 @@
+{
+  "domain": "euclidean_geometry",
+  "items": [
+    {
+      "id": "DEF-right-triangle",
+      "kind": "definition",
+      "name": "直角三角形",
+      "statement_latex": "\\triangle ABC \\text{ is right} \\iff \\exists A,\\angle A=90^\\circ",
+      "explanation": "直角三角形有一个角为直角;其对边称为斜边。",
+      "allowed_use": "用于设定直角边 a,b 与斜边 c。"
+    },
+    {
+      "id": "DEF-square-area",
+      "kind": "definition",
+      "name": "正方形面积公式",
+      "statement_latex": "\\operatorname{area}(S)=s^2 \\quad(S\\text{ square with side }s)",
+      "explanation": "边长为 s 的正方形面积是 s²。",
+      "allowed_use": "把外部正方形和中心正方形转成面积项。"
+    },
+    {
+      "id": "LEM-right-triangle-area",
+      "kind": "lemma",
+      "name": "直角三角形面积",
+      "statement_latex": "\\operatorname{area}(T)=\\frac12 ab",
+      "explanation": "两条直角边长为 a,b 的直角三角形面积为 ab/2。",
+      "allowed_use": "计算四个全等三角形的总面积。"
+    },
+    {
+      "id": "AX-area-additivity",
+      "kind": "principle",
+      "name": "面积可加性",
+      "statement_latex": "R=\\bigsqcup_i R_i \\implies \\operatorname{area}(R)=\\sum_i\\operatorname{area}(R_i)",
+      "explanation": "若区域分解为有限个互不重叠的小区域,总面积等于各部分面积之和。",
+      "allowed_use": "从图形分解得到面积等式。"
+    },
+    {
+      "id": "LEM-center-square",
+      "kind": "lemma",
+      "name": "面积法中心正方形判定",
+      "statement_latex": "\\text{four congruent right triangles arranged around their hypotenuses}\\Rightarrow Q\\text{ is a square of side }c",
+      "explanation": "四个全等直角三角形按面积法排列时,中心区域四边都是斜边 c,相邻锐角互补给出直角。",
+      "allowed_use": "证明中心区域面积为 c²。"
+    },
+    {
+      "id": "ALG-expand-square",
+      "kind": "algebra",
+      "name": "平方展开与等式化简",
+      "statement_latex": "(a+b)^2=a^2+2ab+b^2",
+      "explanation": "用于把面积等式化简为 a²+b²=c²。",
+      "allowed_use": "代数化简步骤。"
+    }
+  ]
+}

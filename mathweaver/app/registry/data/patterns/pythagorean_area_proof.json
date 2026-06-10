@@ -1,0 +1,41 @@
+{
+  "id": "pythagorean_area_proof",
+  "name": "勾股定理面积法",
+  "domain": "euclidean_geometry",
+  "keywords": ["勾股定理", "毕达哥拉斯", "直角三角形", "面积法", "a^2+b^2=c^2", "pythagorean", "right triangle", "area proof"],
+  "required_objects": [
+    {"name": "triangle", "latex": "\\triangle ABC", "kind": "triangle"},
+    {"name": "a", "latex": "a", "kind": "length"},
+    {"name": "b", "latex": "b", "kind": "length"},
+    {"name": "c", "latex": "c", "kind": "length"}
+  ],
+  "template_symbols": [
+    {"id": "ABC", "latex": "\\triangle ABC", "name": "直角三角形", "role": "triangle", "aliases": ["right triangle"]},
+    {"id": "a", "latex": "a", "name": "直角边 a", "role": "segment", "aliases": ["AB"]},
+    {"id": "b", "latex": "b", "name": "直角边 b", "role": "segment", "aliases": ["AC"]},
+    {"id": "c", "latex": "c", "name": "斜边 c", "role": "segment", "aliases": ["BC"]},
+    {"id": "S", "latex": "S", "name": "外部大正方形", "role": "square", "aliases": ["outer square"]},
+    {"id": "Q", "latex": "Q", "name": "中心正方形", "role": "square", "aliases": ["center square"]},
+    {"id": "T1T4", "latex": "T_1,\\ldots,T_4", "name": "四个全等三角形", "role": "area_region", "aliases": ["four triangles"]}
+  ],
+  "skeleton": {
+    "contexts": [
+      {"id": "ctx_root", "assumptions": ["a>0", "b>0", "\\triangle ABC\\text{ is right at }A", "AB=a,\\ AC=b,\\ BC=c"]}
+    ],
+    "required_node_slots": [
+      "setup_triangle", "construct_outer_square", "place_four_triangles", "center_square_lemma", "area_decomposition", "algebra_simplify", "pythagorean_conclusion"
+    ],
+    "standard_obligations": []
+  },
+  "lint_rules": ["conclusion_traceability"],
+  "common_pitfalls": [
+    "只说中心区域是正方形但没有说明四条边为 c、四个角为直角。",
+    "面积分解时忘记说明四个三角形互不重叠并覆盖外部正方形除中心区域外的部分。",
+    "把 c^2 误认为某个公式项，而没有绑定到中心正方形区域。",
+    "化简时漏掉 4·ab/2 = 2ab，导致等式不闭合。"
+  ],
+  "unit_tests": [
+    {"name": "3-4-5 三角形", "description": "a=3,b=4", "expected": {"c": "5", "identity": "3^2+4^2=5^2"}},
+    {"name": "5-12-13 三角形", "description": "a=5,b=12", "expected": {"c": "13", "identity": "5^2+12^2=13^2"}}
+  ]
+}

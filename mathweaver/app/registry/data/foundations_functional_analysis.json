@@ -1,0 +1,138 @@
+{
+  "domain": "functional_analysis",
+  "items": [
+    {
+      "id": "DEF-l2",
+      "kind": "definition",
+      "name": "ℓ² 空间",
+      "statement_latex": "\\ell^2 = \\{ x=(x_n)_{n\\in\\mathbb N} : \\sum_n |x_n|^2 < \\infty \\}",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "l2", "defined_by": "square_summable"},
+      "allowed_use": "任意引用",
+      "prerequisites": [],
+      "explanation": "平方可和序列全体,内积 ⟨x,y⟩=Σ xₙ ȳₙ,是 Hilbert 空间。"
+    },
+    {
+      "id": "DEF-multiplication-operator",
+      "kind": "definition",
+      "name": "最大乘法算子",
+      "statement_latex": "M_a x = (a_n x_n),\\qquad D(M_a)=\\{x\\in\\ell^2 : (a_n x_n)\\in\\ell^2\\}",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "D(M_a)", "defined_by": "maximal_domain"},
+      "allowed_use": "任意引用",
+      "prerequisites": ["DEF-l2"],
+      "explanation": "对角(乘法)算子取最大定义域:所有使像仍在 ℓ² 中的 x。"
+    },
+    {
+      "id": "DEF-resolvent-set",
+      "kind": "definition",
+      "name": "预解集 ρ(T)",
+      "statement_latex": "\\lambda\\in\\rho(T) \\iff (T-\\lambda I)^{-1} \\text{ 存在、有界且定义在全空间}",
+      "statement_canonical": {"claim_type": "membership", "subject": "lambda", "object": "rho(T)"},
+      "allowed_use": "谱分类结论必须引用",
+      "prerequisites": [],
+      "explanation": "λ 属于预解集当且仅当 T−λI 是从 D(T) 到全空间的双射且逆有界。"
+    },
+    {
+      "id": "DEF-spectrum",
+      "kind": "definition",
+      "name": "谱 σ(T)",
+      "statement_latex": "\\sigma(T) = \\mathbb C \\setminus \\rho(T)",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "sigma(T)"},
+      "allowed_use": "任意引用",
+      "prerequisites": ["DEF-resolvent-set"],
+      "explanation": "谱是预解集的补集,进一步划分为点谱、连续谱、剩余谱。"
+    },
+    {
+      "id": "DEF-point-spectrum",
+      "kind": "definition",
+      "name": "点谱 σ_p(T)",
+      "statement_latex": "\\lambda\\in\\sigma_p(T) \\iff \\ker(T-\\lambda I)\\neq\\{0\\}",
+      "statement_canonical": {"claim_type": "membership", "subject": "lambda", "object": "sigma_p(T)", "condition": "kernel_nontrivial"},
+      "allowed_use": "点谱结论必须引用",
+      "prerequisites": [],
+      "explanation": "存在非零特征向量,即 T−λI 不单射。"
+    },
+    {
+      "id": "DEF-continuous-spectrum",
+      "kind": "definition",
+      "name": "连续谱 σ_c(T)",
+      "statement_latex": "\\lambda\\in\\sigma_c(T) \\iff T-\\lambda I \\text{ 单射},\\ \\overline{R(T-\\lambda I)}=H,\\ R(T-\\lambda I)\\neq H",
+      "statement_canonical": {
+        "claim_type": "membership", "subject": "lambda", "object": "sigma_c(T)",
+        "conditions": ["injective", "dense_range", "range_not_full"]
+      },
+      "allowed_use": "连续谱结论必须引用;其三个条件各自产生一个 proof obligation",
+      "prerequisites": ["DEF-dense"],
+      "explanation": "单射、值域稠密、但值域不是全空间——三个条件缺一不可。"
+    },
+    {
+      "id": "DEF-residual-spectrum",
+      "kind": "definition",
+      "name": "剩余谱 σ_r(T)",
+      "statement_latex": "\\lambda\\in\\sigma_r(T) \\iff T-\\lambda I \\text{ 单射且 } \\overline{R(T-\\lambda I)}\\neq H",
+      "statement_canonical": {"claim_type": "membership", "subject": "lambda", "object": "sigma_r(T)", "conditions": ["injective", "range_not_dense"]},
+      "allowed_use": "剩余谱结论必须引用",
+      "prerequisites": ["DEF-dense"],
+      "explanation": "单射但值域不稠密。"
+    },
+    {
+      "id": "DEF-closure",
+      "kind": "definition",
+      "name": "闭包 Ā",
+      "statement_latex": "\\overline A = A \\cup \\{\\text{A 的极限点}\\}",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "closure(A)"},
+      "allowed_use": "任意引用",
+      "prerequisites": [],
+      "explanation": "λ∈Ā ⟺ dist(λ,A)=0。注意 λ∉A 不等于 λ∉Ā:前者只排除恰好相等,后者保证正距离。"
+    },
+    {
+      "id": "DEF-dense",
+      "kind": "definition",
+      "name": "稠密子集",
+      "statement_latex": "S \\subset H \\text{ 稠密} \\iff \\overline S = H",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "closure(S)", "object": "H"},
+      "allowed_use": "任意引用",
+      "prerequisites": ["DEF-closure"],
+      "explanation": "任何向量都能被 S 中元素任意逼近。"
+    },
+    {
+      "id": "LEM-c00-dense-in-l2",
+      "kind": "lemma",
+      "name": "c₀₀ 在 ℓ² 中稠密",
+      "statement_latex": "c_{00} = \\{x : x_n=0 \\text{ 除有限项外}\\} \\text{ 在 } \\ell^2 \\text{ 中稠密}",
+      "statement_canonical": {"claim_type": "operator_property", "subject": "c00", "property": "dense_in_l2"},
+      "allowed_use": "证明定义域/值域稠密时引用",
+      "prerequisites": ["DEF-l2", "DEF-dense"],
+      "explanation": "截断 x 的尾部即得逼近:‖x−x^{(N)}‖² = Σ_{n>N}|x_n|² → 0。"
+    },
+    {
+      "id": "LEM-diagonal-operator-kernel",
+      "kind": "lemma",
+      "name": "对角算子的核",
+      "statement_latex": "\\ker M_b = \\{x\\in\\ell^2 : x_n = 0 \\text{ 当 } b_n \\neq 0\\}",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "ker(M_b)"},
+      "allowed_use": "单射性判断引用",
+      "prerequisites": ["DEF-multiplication-operator"],
+      "explanation": "逐坐标方程 bₙxₙ=0:bₙ≠0 处必有 xₙ=0。故 M_b 单射 ⟺ 所有 bₙ≠0。"
+    },
+    {
+      "id": "LEM-diagonal-operator-range",
+      "kind": "lemma",
+      "name": "对角算子的值域",
+      "statement_latex": "R(M_b)=\\Big\\{y\\in\\ell^2 : y_n=0\\ (n\\in Z_b),\\ \\sum_{n\\notin Z_b}\\big|\\tfrac{y_n}{b_n}\\big|^2<\\infty\\Big\\},\\quad Z_b=\\{n:b_n=0\\}",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "R(M_b)"},
+      "allowed_use": "值域/稠密性/满射性分析引用",
+      "prerequisites": ["DEF-multiplication-operator", "DEF-l2"],
+      "explanation": "解 y=M_b x 即逐坐标除法 xₙ=yₙ/bₙ(bₙ≠0 时),解必须仍属于 ℓ²。"
+    },
+    {
+      "id": "LEM-bounded-inverse-criterion",
+      "kind": "lemma",
+      "name": "对角算子可逆判据",
+      "statement_latex": "R(M_b)=\\ell^2 \\text{ 且 } M_b^{-1} \\text{ 有界} \\iff \\inf_n |b_n| > 0,\\quad \\|M_b^{-1}\\| = \\frac{1}{\\inf_n|b_n|}",
+      "statement_canonical": {"claim_type": "implication", "conclusion": {"type": "inf_positive", "subject": "b_n"}},
+      "allowed_use": "预解集判断/不满射判断引用",
+      "prerequisites": ["LEM-diagonal-operator-range"],
+      "explanation": "关键:每项非零 ≠ 一致正下界。反例 bₙ=1/n:逐项可除但逆无界,值域不是全空间。"
+    }
+  ]
+}

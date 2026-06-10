@@ -1,0 +1,10 @@
+data: {"type": "tool_call", "name": "parse_problem", "label": "解析题目 / 识别问题模式"}
+
+data: {"type": "tool_result", "name": "parse_problem", "summary": "pattern = diagonal_operator_spectral_classification", "data": {"id": "problem_4b1f2985a2", "raw_input": "设 (a_n) 为有界复数列，定义 ℓ² 上的乘法算子 M_a x = (a_n x_n)。求 M_a 的点谱、连续谱、剩余谱与预解集，并证明你的分类。", "domain": "functional analysis / operator theory", "pattern_id": "diagonal_operator_spectral_classification", "pattern_confidence": 0.99, "objects": [{"name": "bounded complex sequence", "latex": "(a_n)_{n\\ge 1}", "kind": "sequence"}, {"name": "multiplication operator", "latex": "M_a:\\ell^2\\to\\ell^2,\\ (M_a x)_n=a_n x_n", "kind": "linear operator"}, {"name": "Hilbert space", "latex": "\\ell^2", "kind": "Hilbert space"}, {"name": "spectral parameter", "latex": "\\lambda\\in\\mathbb{C}", "kind": "scalar"}], "goals": [{"description": "classify the point spectrum of the multiplication operator", "latex": "\\sigma_p(M_a)"}, {"description": "classify the continuous spectrum of the multiplication operator", "latex": "\\sigma_c(M_a)"}, {"description": "classify the residual spectrum of the multiplication operator", "latex": "\\sigma_r(M_a)"}, {"description": "determine the resolvent set of the multiplication operator", "latex": "\\rho(M_a)"}, {"description": "prove the spectral classification obtained above", "latex": "\\text{determine and prove the descriptions of }\\sigma_p(M_a),\\sigma_c(M_a),\\sigma_r(M_a),\\rho(M_a)"}], "assumptions": ["(a_n) is a bounded sequence of complex numbers", "M_a acts on \\ell^2 by coordinatewise multiplication", "the underlying scalar field is \\mathbb{C}"], "notation_map": {"(a_n)": "a_seq", "a_n": "a_seq", "M_a": "M_a", "\\ell^2": "l2", "ℓ²": "l2"}}}
+
+data: {"type": "tool_call", "name": "generate_graph", "label": "生成证明图谱(填充模板槽位)"}
+
+data: {"type": "pipeline_error", "stage": "generate", "message": "LLM 请求失败(已重试): HTTPSConnectionPool(host='cmdme.cn', port=443): Read timed out. (read timeout=120.0)"}
+
+data: {"type": "stream_end"}
+

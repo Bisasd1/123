@@ -1,0 +1,6 @@
+# 核心(必装)
+flask>=3.0
+requests>=2.31
+
+# MathScene 版本不再依赖 Manim/LaTeX/ffmpeg。
+# 图示预览由后端生成声明式 SVG,前端直接展示。

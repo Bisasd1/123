@@ -1,0 +1,335 @@
+{
+  "id": "graph_golden_diagonal",
+  "problem_id": "problem_golden",
+  "pattern_id": "diagonal_operator_spectral_classification",
+  "version": 1,
+  "title": "ℓ² 上乘法算子 M_a 的谱分类",
+  "change_summary": "golden reference graph",
+  "symbols": [
+    {"id": "a_seq", "latex": "(a_n)", "name": "对角序列", "role": "diagonal_sequence", "definition_node_id": "def_Ma", "aliases": ["a_n"]},
+    {"id": "M_a", "latex": "M_a", "name": "乘法算子", "role": "operator", "definition_node_id": "def_Ma", "aliases": ["T"]},
+    {"id": "A", "latex": "A", "name": "对角元集合", "role": "set_of_diagonal_entries", "definition_node_id": "def_A", "aliases": ["\\{a_n\\}"]},
+    {"id": "Z_lambda", "latex": "Z_\\lambda", "name": "命中坐标集", "role": "coincidence_set", "definition_node_id": "def_Zlambda", "aliases": []},
+    {"id": "m_lambda", "latex": "m_\\lambda", "name": "最小距离", "role": "distance_to_diagonal", "definition_node_id": "def_mlambda", "aliases": ["\\operatorname{dist}(\\lambda,A)"]},
+    {"id": "lambda", "latex": "\\lambda", "name": "谱参数", "role": "spectral_parameter", "definition_node_id": null, "aliases": []},
+    {"id": "l2", "latex": "\\ell^2", "name": "底空间", "role": "hilbert_space", "definition_node_id": null, "aliases": ["H"]},
+    {"id": "c00", "latex": "c_{00}", "name": "有限支撑序列", "role": "dense_subspace", "definition_node_id": null, "aliases": []},
+    {"id": "e_n", "latex": "e_n", "name": "标准基", "role": "standard_basis", "definition_node_id": null, "aliases": ["e_k"]},
+    {"id": "b_seq", "latex": "(b_n)", "name": "通用对角序列", "role": "generic_sequence", "definition_node_id": null, "aliases": []}
+  ],
+  "contexts": [
+    {"id": "ctx_root", "parent_context_id": null, "assumptions": ["(a_n)\\subset\\mathbb C \\text{ 给定}", "M_a \\text{ 取最大定义域}"], "introduced_symbols": ["a_seq", "M_a"], "active_case": null},
+    {"id": "ctx_generic_b", "parent_context_id": "ctx_root", "assumptions": ["b=(b_n) \\text{ 任意复序列},\\ M_b x=(b_n x_n)"], "introduced_symbols": ["b_seq"], "active_case": null},
+    {"id": "ctx_case_resolvent", "parent_context_id": "ctx_root", "assumptions": ["m_\\lambda=\\inf_n|a_n-\\lambda|>0"], "introduced_symbols": [], "active_case": "A"},
+    {"id": "ctx_case_point", "parent_context_id": "ctx_root", "assumptions": ["\\exists k:\\ a_k=\\lambda"], "introduced_symbols": [], "active_case": "B"},
+    {"id": "ctx_case_continuous", "parent_context_id": "ctx_root", "assumptions": ["\\lambda\\notin A", "\\inf_n|a_n-\\lambda|=0"], "introduced_symbols": [], "active_case": "C"}
+  ],
+  "nodes": [
+    {
+      "id": "def_Ma", "context_id": "ctx_root", "node_type": "definition", "title": "定义 M_a",
+      "statement_latex": "M_a x=(a_n x_n),\\qquad D(M_a)=\\{x\\in\\ell^2:(a_n x_n)\\in\\ell^2\\}",
+      "statement_natural": "M_a 把每个坐标乘以 a_n,定义域取使像仍在 ℓ² 的最大集合。",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "D(M_a)", "defined_by": "maximal_domain"},
+      "symbols_used": ["M_a", "a_seq", "l2"], "local_assumptions": [],
+      "source_refs": ["DEF-multiplication-operator", "DEF-l2"], "source_level": "definition",
+      "foundation_anchor_ids": ["DEF-multiplication-operator"],
+      "validation_status": "valid", "generated_by": "golden",
+      "explanation": "一切分析的起点:算子是对角的,所以每个坐标互相独立。"
+    },
+    {
+      "id": "def_A", "context_id": "ctx_root", "node_type": "definition", "title": "定义 A",
+      "statement_latex": "A=\\{a_n : n\\in\\mathbb N\\}",
+      "statement_natural": "对角元的全体取值。谱分类最终完全由 A 与它的闭包决定。",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "A"},
+      "symbols_used": ["A", "a_seq"], "local_assumptions": [],
+      "source_refs": [], "source_level": "definition", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden",
+      "explanation": "三个控制对象之一。"
+    },
+    {
+      "id": "def_Zlambda", "context_id": "ctx_root", "node_type": "definition", "title": "定义 Z_λ",
+      "statement_latex": "Z_\\lambda=\\{n : a_n=\\lambda\\}",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "Z_lambda"},
+      "statement_natural": "恰好命中 λ 的坐标集合,非空与否决定是否点谱。",
+      "symbols_used": ["Z_lambda", "lambda", "a_seq"], "local_assumptions": [],
+      "source_refs": [], "source_level": "definition", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "def_mlambda", "context_id": "ctx_root", "node_type": "definition", "title": "定义 m_λ",
+      "statement_latex": "m_\\lambda=\\inf_n |a_n-\\lambda| = \\operatorname{dist}(\\lambda, A)",
+      "statement_canonical": {"claim_type": "equality", "subject": "m_lambda"},
+      "statement_natural": "λ 到对角元集合的距离,正与否决定是否预解集。",
+      "symbols_used": ["m_lambda", "lambda", "a_seq", "A"], "local_assumptions": [],
+      "source_refs": ["DEF-closure"], "source_level": "definition", "foundation_anchor_ids": ["DEF-closure"],
+      "validation_status": "valid", "generated_by": "golden",
+      "explanation": "m_λ>0 ⟺ λ∉Ā。注意它与『所有 a_n≠λ』不同。"
+    },
+    {
+      "id": "lem_domain_dense", "context_id": "ctx_root", "node_type": "lemma", "title": "D(M_a) 稠密",
+      "statement_latex": "\\overline{D(M_a)}=\\ell^2",
+      "statement_natural": "有限支撑序列都属于 D(M_a),而它们在 ℓ² 中稠密。",
+      "statement_canonical": {"claim_type": "operator_property", "operator": "M_a", "property": "densely_defined"},
+      "symbols_used": ["M_a", "c00", "l2"], "local_assumptions": [],
+      "source_refs": ["LEM-c00-dense-in-l2"], "source_level": "standard_lemma",
+      "foundation_anchor_ids": ["LEM-c00-dense-in-l2"],
+      "validation_status": "valid", "generated_by": "golden",
+      "explanation": "无界算子谈谱之前必须先保证稠密定义。"
+    },
+    {
+      "id": "calc_diag_action", "context_id": "ctx_root", "node_type": "calculation", "title": "对角作用",
+      "statement_latex": "M_a e_n = a_n e_n",
+      "statement_natural": "标准基向量是 M_a 的特征向量,特征值就是 a_n。",
+      "statement_canonical": {"claim_type": "computation", "subject": "M_a e_n"},
+      "symbols_used": ["M_a", "e_n", "a_seq"], "local_assumptions": [],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "calc_shift", "context_id": "ctx_root", "node_type": "calculation", "title": "平移恒等式",
+      "statement_latex": "M_a-\\lambda I = M_{a-\\lambda}",
+      "statement_natural": "把谱问题化为另一个乘法算子:对角元变成 a_n−λ。",
+      "statement_canonical": {"claim_type": "equality", "lhs": "M_a - lambda I", "rhs": "M_{a-lambda}"},
+      "symbols_used": ["M_a", "lambda"], "local_assumptions": [],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden",
+      "explanation": "整道题的枢纽:所有谱信息都压缩进标量 a_n−λ。"
+    },
+    {
+      "id": "lem_kernel", "context_id": "ctx_generic_b", "node_type": "lemma", "title": "通用核引理",
+      "statement_latex": "\\ker M_b = \\{x : x_n=0 \\text{ 当 } b_n\\neq 0\\}",
+      "statement_natural": "逐坐标方程 bₙxₙ=0 直接给出核;单射 ⟺ 所有 bₙ≠0。",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "ker(M_b)"},
+      "symbols_used": ["b_seq"], "local_assumptions": [],
+      "source_refs": ["LEM-diagonal-operator-kernel"], "source_level": "standard_lemma",
+      "foundation_anchor_ids": ["LEM-diagonal-operator-kernel"],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "lem_range", "context_id": "ctx_generic_b", "node_type": "lemma", "title": "通用值域引理",
+      "statement_latex": "R(M_b)=\\Big\\{y : y_n=0\\ (n\\in Z_b),\\ \\sum_{n\\notin Z_b}\\big|\\tfrac{y_n}{b_n}\\big|^2<\\infty\\Big\\}",
+      "statement_natural": "解逐坐标除法并要求解仍属于 ℓ²。",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "R(M_b)"},
+      "symbols_used": ["b_seq", "l2"], "local_assumptions": [],
+      "source_refs": ["LEM-diagonal-operator-range"], "source_level": "standard_lemma",
+      "foundation_anchor_ids": ["LEM-diagonal-operator-range"],
+      "validation_status": "valid", "generated_by": "golden",
+      "pitfalls": ["除法 x_n=y_n/b_n 只在 b_n≠0 时合法,必须先分离 Z_b"],
+      "explanation": ""
+    },
+    {
+      "id": "lem_range_closure", "context_id": "ctx_generic_b", "node_type": "lemma", "title": "值域闭包",
+      "statement_latex": "\\overline{R(M_b)}=\\{y\\in\\ell^2 : y_n=0,\\ n\\in Z_b\\}",
+      "statement_natural": "有限支撑向量(支撑避开 Z_b)总能落在值域里,逼近任何 Z_b 上为零的向量。",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "closure(R(M_b))"},
+      "symbols_used": ["b_seq", "c00"], "local_assumptions": [],
+      "source_refs": ["LEM-c00-dense-in-l2"], "source_level": "derived_lemma",
+      "foundation_anchor_ids": ["LEM-c00-dense-in-l2"],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "lem_surj_iff", "context_id": "ctx_generic_b", "node_type": "lemma", "title": "可逆判据",
+      "statement_latex": "R(M_b)=\\ell^2 \\iff \\inf_n|b_n|>0,\\quad \\|M_b^{-1}\\|=\\tfrac{1}{\\inf_n|b_n|}",
+      "statement_natural": "满射且逆有界,当且仅当对角元有一致正下界。",
+      "statement_canonical": {"claim_type": "implication", "conclusion": {"type": "inf_positive", "subject": "b_n"}},
+      "symbols_used": ["b_seq", "l2"], "local_assumptions": [],
+      "source_refs": ["LEM-bounded-inverse-criterion"], "source_level": "standard_lemma",
+      "foundation_anchor_ids": ["LEM-bounded-inverse-criterion"],
+      "validation_status": "valid", "generated_by": "golden",
+      "pitfalls": ["每项 b_n≠0 并不蕴含 inf|b_n|>0(反例 b_n=1/n)"],
+      "explanation": ""
+    },
+    {
+      "id": "inst_b", "context_id": "ctx_root", "node_type": "calculation", "title": "代入 b_n=a_n−λ",
+      "statement_latex": "b_n := a_n-\\lambda \\implies Z_b=Z_\\lambda,\\ \\inf_n|b_n|=m_\\lambda",
+      "statement_natural": "通用引理在 b_n=a_n−λ 处实例化:核/值域/可逆性全部翻译成 Z_λ 与 m_λ 的语言。",
+      "statement_canonical": {"claim_type": "instantiation", "generic": "M_b", "with": "b_n = a_n - lambda"},
+      "symbols_used": ["b_seq", "a_seq", "lambda", "Z_lambda", "m_lambda"], "local_assumptions": [],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden",
+      "explanation": "函数复用:Generic lemma(b) 在 b=a−λ 处调用。"
+    },
+    {
+      "id": "res_inj", "context_id": "ctx_case_resolvent", "node_type": "calculation", "title": "情形A:单射",
+      "statement_latex": "m_\\lambda>0 \\implies Z_\\lambda=\\varnothing \\implies \\ker(M_a-\\lambda I)=\\{0\\}",
+      "statement_natural": "正下界尤其保证每项非零,核平凡。",
+      "statement_canonical": {"claim_type": "operator_property", "operator": "M_a - lambda I", "property": "injective"},
+      "symbols_used": ["m_lambda", "Z_lambda"], "local_assumptions": ["m_\\lambda>0"],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "res_inv_bounded", "context_id": "ctx_case_resolvent", "node_type": "calculation", "title": "情形A:逆有界",
+      "statement_latex": "\\|(M_a-\\lambda I)^{-1}\\| = \\sup_n \\tfrac{1}{|a_n-\\lambda|} = \\tfrac{1}{\\operatorname{dist}(\\lambda,A)}",
+      "statement_natural": "可逆判据给出满射与逆范数公式。",
+      "statement_canonical": {"claim_type": "operator_property", "operator": "M_a - lambda I", "property": "bounded_inverse"},
+      "symbols_used": ["m_lambda", "A", "lambda"], "local_assumptions": ["m_\\lambda>0"],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "res_conclusion", "context_id": "ctx_case_resolvent", "node_type": "conclusion", "title": "情形A ⇒ 预解集",
+      "statement_latex": "m_\\lambda>0 \\implies \\lambda\\in\\rho(M_a)",
+      "statement_natural": "单射、满射、逆有界——预解集定义的全部条件成立。",
+      "statement_canonical": {"claim_type": "membership", "subject": "lambda", "relation": "in", "object": "rho(M_a)"},
+      "symbols_used": ["lambda", "m_lambda", "M_a"], "local_assumptions": ["m_\\lambda>0"],
+      "source_refs": ["DEF-resolvent-set"], "source_level": "conclusion",
+      "foundation_anchor_ids": ["DEF-resolvent-set"],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "pt_eigen", "context_id": "ctx_case_point", "node_type": "calculation", "title": "情形B:特征向量",
+      "statement_latex": "a_k=\\lambda \\implies (M_a-\\lambda I)e_k = 0,\\quad e_k\\neq 0",
+      "statement_natural": "命中坐标直接给出非零核向量。",
+      "statement_canonical": {"claim_type": "computation", "subject": "(M_a-lambda I)e_k"},
+      "symbols_used": ["e_n", "lambda", "a_seq"], "local_assumptions": ["\\exists k: a_k=\\lambda"],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "pt_conclusion", "context_id": "ctx_case_point", "node_type": "conclusion", "title": "情形B ⇒ 点谱",
+      "statement_latex": "Z_\\lambda\\neq\\varnothing \\implies \\lambda\\in\\sigma_p(M_a)",
+      "statement_natural": "核非平凡即点谱;事实上 σ_p(M_a)=A。",
+      "statement_canonical": {"claim_type": "membership", "subject": "lambda", "relation": "in", "object": "sigma_p(M_a)"},
+      "symbols_used": ["lambda", "Z_lambda", "M_a"], "local_assumptions": ["\\exists k: a_k=\\lambda"],
+      "source_refs": ["DEF-point-spectrum"], "source_level": "conclusion",
+      "foundation_anchor_ids": ["DEF-point-spectrum"],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "cont_nonzero", "context_id": "ctx_case_continuous", "node_type": "calculation", "title": "情形C:每项非零",
+      "statement_latex": "\\lambda\\notin A \\implies a_n-\\lambda\\neq 0\\ \\ \\forall n",
+      "statement_natural": "没有坐标恰好命中 λ,逐项除法处处合法——但这不等于有正下界。",
+      "statement_canonical": {"claim_type": "implication", "assumptions": [{"type": "not_in", "left": "lambda", "right": "A"}], "conclusion": {"type": "all_nonzero", "subject": "a_n - lambda"}},
+      "symbols_used": ["lambda", "A", "a_seq"], "local_assumptions": ["\\lambda\\notin A"],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden",
+      "pitfalls": ["不能由此推出 inf|a_n-λ|>0"],
+      "explanation": ""
+    },
+    {
+      "id": "cont_inj", "context_id": "ctx_case_continuous", "node_type": "calculation", "title": "情形C:单射 ✓",
+      "statement_latex": "\\ker(M_a-\\lambda I)=\\{0\\}",
+      "statement_natural": "核引理 + 每项非零 ⇒ 单射。连续谱定义的条件一。",
+      "statement_canonical": {"claim_type": "operator_property", "operator": "M_a - lambda I", "property": "injective"},
+      "symbols_used": ["M_a", "lambda"], "local_assumptions": ["\\lambda\\notin A"],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "cont_dense", "context_id": "ctx_case_continuous", "node_type": "calculation", "title": "情形C:值域稠密 ✓",
+      "statement_latex": "\\overline{R(M_a-\\lambda I)}=\\ell^2",
+      "statement_natural": "Z_λ=∅ 时值域闭包没有任何坐标约束;有限支撑向量都在值域中。条件二。",
+      "statement_canonical": {"claim_type": "operator_property", "operator": "M_a - lambda I", "property": "dense_range"},
+      "symbols_used": ["M_a", "lambda", "c00"], "local_assumptions": ["\\lambda\\notin A"],
+      "source_refs": ["LEM-c00-dense-in-l2"], "source_level": "calculation",
+      "foundation_anchor_ids": ["LEM-c00-dense-in-l2"],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "cont_notsurj", "context_id": "ctx_case_continuous", "node_type": "calculation", "title": "情形C:值域 ≠ ℓ² ✓",
+      "statement_latex": "\\inf_n|a_n-\\lambda|=0 \\implies R(M_a-\\lambda I)\\neq\\ell^2",
+      "statement_natural": "取 a_{n_k}→λ,令 y_{n_k}=a_{n_k}−λ(衰减后属于 ℓ²),解被迫 x_{n_k}=1,不可平方求和。条件三。",
+      "statement_canonical": {"claim_type": "operator_property", "operator": "M_a - lambda I", "property": "range_not_full", "reason": "inf_zero"},
+      "symbols_used": ["M_a", "lambda", "m_lambda"], "local_assumptions": ["\\inf_n|a_n-\\lambda|=0"],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden",
+      "pitfalls": ["这一步是『每项非零 ≠ 正下界』的实质体现,反例 a_n=1/n, λ=0"],
+      "explanation": ""
+    },
+    {
+      "id": "cont_conclusion", "context_id": "ctx_case_continuous", "node_type": "conclusion", "title": "情形C ⇒ 连续谱",
+      "statement_latex": "\\lambda\\in\\overline A\\setminus A \\implies \\lambda\\in\\sigma_c(M_a)",
+      "statement_natural": "单射 + 值域稠密 + 值域不满,恰好命中连续谱定义的三个条件。",
+      "statement_canonical": {"claim_type": "membership", "subject": "lambda", "relation": "in", "object": "sigma_c(M_a)"},
+      "symbols_used": ["lambda", "A", "M_a"], "local_assumptions": ["\\lambda\\notin A", "\\inf_n|a_n-\\lambda|=0"],
+      "source_refs": ["DEF-continuous-spectrum"], "source_level": "conclusion",
+      "foundation_anchor_ids": ["DEF-continuous-spectrum"],
+      "validation_status": "valid", "generated_by": "golden",
+      "explanation": "为什么不是 σ_c={λ: inf=0}?因为 λ∈A 时算子不单射,落入点谱——必须排除 A。"
+    },
+    {
+      "id": "cases_cover", "context_id": "ctx_root", "node_type": "case", "title": "三种情形覆盖 ℂ",
+      "statement_latex": "\\forall\\lambda:\\ m_\\lambda>0\\ \\lor\\ Z_\\lambda\\neq\\varnothing\\ \\lor\\ (Z_\\lambda=\\varnothing \\land m_\\lambda=0)",
+      "statement_natural": "按 m_λ 是否为零、Z_λ 是否为空二分,逻辑上穷尽且互斥。",
+      "statement_canonical": {"claim_type": "case_cover", "cases": ["resolvent", "point", "continuous"]},
+      "symbols_used": ["lambda", "Z_lambda", "m_lambda"], "local_assumptions": [],
+      "source_refs": [], "source_level": "calculation", "foundation_anchor_ids": [],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "resid_empty", "context_id": "ctx_root", "node_type": "conclusion", "title": "剩余谱为空",
+      "statement_latex": "\\sigma_r(M_a)=\\varnothing",
+      "statement_natural": "剩余谱需要『单射但值域不稠密』;而单射 ⟺ Z_λ=∅ ⟺ 值域稠密,两者同步,矛盾不可能发生。",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "sigma_r(M_a)", "object": "empty"},
+      "symbols_used": ["M_a", "Z_lambda"], "local_assumptions": [],
+      "source_refs": ["DEF-residual-spectrum"], "source_level": "conclusion",
+      "foundation_anchor_ids": ["DEF-residual-spectrum"],
+      "validation_status": "valid", "generated_by": "golden", "explanation": ""
+    },
+    {
+      "id": "final_classification", "context_id": "ctx_root", "node_type": "conclusion", "title": "谱分类总表",
+      "statement_latex": "\\rho(M_a)=\\mathbb C\\setminus\\overline A,\\quad \\sigma_p(M_a)=A,\\quad \\sigma_c(M_a)=\\overline A\\setminus A,\\quad \\sigma_r(M_a)=\\varnothing",
+      "statement_natural": "全部谱信息由集合 A 及其闭包决定。",
+      "statement_canonical": {"claim_type": "set_equality", "subject": "spectral_classification(M_a)"},
+      "symbols_used": ["M_a", "A"], "local_assumptions": [],
+      "source_refs": ["DEF-spectrum"], "source_level": "conclusion",
+      "foundation_anchor_ids": ["DEF-spectrum"],
+      "validation_status": "valid", "generated_by": "golden",
+      "explanation": "把三个情形结论与覆盖性、稠密定义域、剩余谱为空合并即得。"
+    }
+  ],
+  "edges": [
+    {"source_id": "def_Ma", "target_id": "def_A", "relation": "uses_definition", "justification": "A 由对角序列定义"},
+    {"source_id": "def_Ma", "target_id": "calc_diag_action", "relation": "computes", "justification": "直接代入标准基"},
+    {"source_id": "def_Ma", "target_id": "calc_shift", "relation": "computes", "justification": "逐坐标减法"},
+    {"source_id": "def_Ma", "target_id": "lem_domain_dense", "relation": "uses_definition", "justification": "c00 ⊂ D(M_a)"},
+    {"source_id": "def_Ma", "target_id": "lem_kernel", "relation": "uses_definition", "justification": "通用乘法算子同型"},
+    {"source_id": "lem_range", "target_id": "lem_range_closure", "relation": "uses_lemma", "justification": "对值域取闭包"},
+    {"source_id": "lem_range", "target_id": "lem_surj_iff", "relation": "uses_lemma", "justification": "值域刻画推出满射判据"},
+    {"source_id": "calc_shift", "target_id": "inst_b", "relation": "instantiates", "justification": "b_n = a_n - λ"},
+    {"source_id": "lem_kernel", "target_id": "inst_b", "relation": "instantiates", "justification": "核引理实例化"},
+    {"source_id": "lem_range", "target_id": "inst_b", "relation": "instantiates", "justification": "值域引理实例化"},
+    {"source_id": "lem_range_closure", "target_id": "inst_b", "relation": "instantiates", "justification": "闭包引理实例化"},
+    {"source_id": "lem_surj_iff", "target_id": "inst_b", "relation": "instantiates", "justification": "可逆判据实例化"},
+    {"source_id": "def_Zlambda", "target_id": "inst_b", "relation": "uses_definition", "justification": "Z_b = Z_λ"},
+    {"source_id": "def_mlambda", "target_id": "inst_b", "relation": "uses_definition", "justification": "inf|b_n| = m_λ"},
+
+    {"source_id": "inst_b", "target_id": "res_inj", "relation": "uses_lemma", "justification": "核引理(实例化)"},
+    {"source_id": "inst_b", "target_id": "res_inv_bounded", "relation": "uses_lemma", "justification": "可逆判据(实例化)"},
+    {"source_id": "res_inj", "target_id": "res_conclusion", "relation": "proves_subgoal", "justification": "预解集要求单射"},
+    {"source_id": "res_inv_bounded", "target_id": "res_conclusion", "relation": "discharges_definition_condition", "justification": "预解集要求满射且逆有界"},
+
+    {"source_id": "calc_diag_action", "target_id": "pt_eigen", "relation": "computes", "justification": "在 k∈Z_λ 处取基向量"},
+    {"source_id": "pt_eigen", "target_id": "pt_conclusion", "relation": "discharges_definition_condition", "justification": "点谱定义:核非平凡"},
+
+    {"source_id": "inst_b", "target_id": "cont_nonzero", "relation": "uses_lemma", "justification": "把假设翻译到 b_n"},
+    {"source_id": "cont_nonzero", "target_id": "cont_inj", "relation": "proves_subgoal", "justification": "每项非零 ⇒ 核平凡"},
+    {"source_id": "inst_b", "target_id": "cont_inj", "relation": "uses_lemma", "justification": "核引理(实例化)"},
+    {"source_id": "cont_nonzero", "target_id": "cont_dense", "relation": "proves_subgoal", "justification": "Z_λ=∅ ⇒ 闭包无约束"},
+    {"source_id": "inst_b", "target_id": "cont_dense", "relation": "uses_lemma", "justification": "闭包引理(实例化)"},
+    {"source_id": "inst_b", "target_id": "cont_notsurj", "relation": "uses_lemma", "justification": "可逆判据反向使用"},
+    {"source_id": "cont_inj", "target_id": "cont_conclusion", "relation": "discharges_definition_condition", "justification": "连续谱条件一:单射"},
+    {"source_id": "cont_dense", "target_id": "cont_conclusion", "relation": "discharges_definition_condition", "justification": "连续谱条件二:值域稠密"},
+    {"source_id": "cont_notsurj", "target_id": "cont_conclusion", "relation": "discharges_definition_condition", "justification": "连续谱条件三:值域不满"},
+
+    {"source_id": "def_Zlambda", "target_id": "cases_cover", "relation": "uses_definition", "justification": ""},
+    {"source_id": "def_mlambda", "target_id": "cases_cover", "relation": "uses_definition", "justification": ""},
+    {"source_id": "lem_kernel", "target_id": "resid_empty", "relation": "uses_lemma", "justification": "单射 ⟺ Z_λ=∅"},
+    {"source_id": "lem_range_closure", "target_id": "resid_empty", "relation": "uses_lemma", "justification": "Z_λ=∅ ⟺ 值域稠密"},
+    {"source_id": "inst_b", "target_id": "resid_empty", "relation": "uses_lemma", "justification": "在 b=a−λ 处使用"},
+
+    {"source_id": "res_conclusion", "target_id": "final_classification", "relation": "concludes", "justification": "情形A"},
+    {"source_id": "pt_conclusion", "target_id": "final_classification", "relation": "concludes", "justification": "情形B"},
+    {"source_id": "cont_conclusion", "target_id": "final_classification", "relation": "concludes", "justification": "情形C"},
+    {"source_id": "cases_cover", "target_id": "final_classification", "relation": "proves_subgoal", "justification": "情形穷尽"},
+    {"source_id": "resid_empty", "target_id": "final_classification", "relation": "concludes", "justification": "剩余谱"},
+    {"source_id": "lem_domain_dense", "target_id": "final_classification", "relation": "proves_subgoal", "justification": "稠密定义域前提"}
+  ],
+  "obligations": [
+    {"id": "O_inj", "description": "证明 M_a-λI 单射(连续谱条件一)", "required_for_node": "cont_conclusion", "status": "discharged", "discharged_by": "cont_inj"},
+    {"id": "O_dense", "description": "证明值域稠密(连续谱条件二)", "required_for_node": "cont_conclusion", "status": "discharged", "discharged_by": "cont_dense"},
+    {"id": "O_notfull", "description": "证明值域 ≠ ℓ²(连续谱条件三)", "required_for_node": "cont_conclusion", "status": "discharged", "discharged_by": "cont_notsurj"},
+    {"id": "O_domain", "description": "证明 D(M_a) 稠密", "required_for_node": "final_classification", "status": "discharged", "discharged_by": "lem_domain_dense"}
+  ]
+}
