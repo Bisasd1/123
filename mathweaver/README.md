@@ -24,7 +24,7 @@ Problem Text
 核心原则:
 
 1. **ProofGraph 只管推理依赖**,不要把所有图形微操作塞进主图。
-2. **StepCapsule 记录每一步的数学合同**:输入、动作/命题、保证、合法性、输出、后续用途。
+2. **StepCapsule 记录每一步的数学合同**:输入、动作/命题、保证、合法性、输出、后续用途;并携带**可折叠细节层**(直觉 / 证明依据 / 定义展开 / 裁判检查)与**构造合同**(前提、不变量、待证义务、退化警告),主图保持骨架粒度,细节渐进展开。
 3. **ObjectRegistry 记录符号与对象来源**:对象类型、定义、性质、引入节点。
 4. **DiagramSpec 记录可视化对象**,VisualBinding 把公式项和图形区域绑定。
 5. **LLM 不写前端图示/动画代码**;后端确定性生成 MathScene JSON 与 SVG。
@@ -60,9 +60,25 @@ python run.py                       # → http://127.0.0.1:5000
 
 ## 接入中转站
 
-左下角「设置」填入 OpenAI 兼容中转站的 `base_url`(以 `/v1` 结尾)与 `api_key`,即时生效、落盘到 `var/settings.json`;也可用 `.env`(见 `.env.example`)。
+左下角「设置」填入 OpenAI 兼容中转站的 `base_url` 与 `api_key`,即时生效、落盘到 `var/settings.json`;也可用 `.env`(见 `.env.example`)。`base_url` 带不带 `/v1` 都可以,客户端会自动探测并缓存可用端点。
 
-协议层用 `requests` 直连 `/chat/completions`,带指数退避重试与 JSON 修复循环,不依赖厂商专属功能(response_format 等),对中转站最大兼容。
+协议层用 `requests` 直连 `/chat/completions`,带指数退避重试(401/403 立即失败并提示检查 key)、JSON 修复循环与截断括号配平,不依赖厂商专属功能(response_format 等),对中转站最大兼容。
+
+### 一键联调真实 API
+
+```bash
+python scripts/live_api_check.py --base https://你的中转站 --key sk-xxx
+```
+
+依次验证:`/models` 探测 → 最小对话 ping → 两道验收题(√2 无理数、实数完备性)端到端
+「结构图 → 三层校验 → 据结构图重建解答」;`--problem "任意证明题"` 可追加验收题。
+通过后配置自动写入 `var/settings.json`,Web UI 直接可用。key 只落在 gitignore 的 `var/`,不会进仓库。
+
+### 对话流程(先结构,后解答)
+
+输入证明题后:
+1. 流水线先产出**证明结构图**(图谱/对象/图示/节点/追溯多视图立即可看,规划过程流式显示);
+2. 再**严格依据结构图**流式重建一篇完整流畅的解答(在线中断时自动回退确定性重建,永远有完整解答)。
 
 ---
 

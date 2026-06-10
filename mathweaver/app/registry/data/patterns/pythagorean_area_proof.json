@@ -2,7 +2,7 @@
   "id": "pythagorean_area_proof",
   "name": "勾股定理面积法",
   "domain": "euclidean_geometry",
-  "keywords": ["勾股定理", "毕达哥拉斯", "直角三角形", "面积法", "a^2+b^2=c^2", "pythagorean", "right triangle", "area proof"],
+  "keywords": ["勾股", "勾股定理", "毕达哥拉斯", "直角三角形", "面积法", "斜边", "直角边", "a^2+b^2=c^2", "a²+b²=c²", "pythagorean", "right triangle", "area proof"],
   "required_objects": [
     {"name": "triangle", "latex": "\\triangle ABC", "kind": "triangle"},
     {"name": "a", "latex": "a", "kind": "length"},

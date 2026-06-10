@@ -11,6 +11,7 @@ from app.ir import (
     BackgroundSpec,
     ConceptTraceSpec,
     CounterexampleSpec,
+    DetailLayer,
     DiagramSpec,
     ExampleSpec,
     MathSceneSpec,
@@ -90,7 +91,55 @@ def _object_registry_from_symbols(graph: ProofGraph, extras: list[ObjectEntry] |
     return ObjectRegistry(entries)
 
 
-def _capsule_for_node(graph: ProofGraph, node: ProofNode, extra_substeps: list[str] | None = None) -> StepCapsule:
+def _detail_layers_for_node(graph: ProofGraph, node: ProofNode) -> list[DetailLayer]:
+    """从节点元数据确定性地构建渐进式细节层(空层不输出,UI 默认折叠)。
+
+    层级语义:intuition(这一步在干什么)→ proof(为什么成立)→
+    definition(引用了哪些底层定义/定理)→ referee(裁判式检查:前提/易错/义务)。
+    """
+    reg = get_registry()
+    local = {f.get("id"): f for f in getattr(graph, "local_foundations", []) if isinstance(f, dict)}
+    layers: list[DetailLayer] = []
+
+    if node.statement_natural:
+        layers.append(DetailLayer(level="intuition", title="直觉",
+                                  blocks=[node.statement_natural]))
+
+    proof_blocks = []
+    if node.explanation:
+        proof_blocks.append(node.explanation)
+    proof_blocks.extend(f"依赖『{_node_title(graph, e.source_id)}』:{e.justification}"
+                        for e in graph.in_edges(node.id) if e.justification)
+    if proof_blocks:
+        layers.append(DetailLayer(level="proof", title="证明依据", blocks=proof_blocks[:6]))
+
+    def_blocks = []
+    for ref in dict.fromkeys(list(node.source_refs) + list(node.foundation_anchor_ids)):
+        item = reg.foundation(ref) or local.get(ref)
+        if item:
+            stmt = item.get("statement_latex", "")
+            def_blocks.append(f"{item.get('name', ref)}({ref})"
+                              + (f":${stmt}$" if stmt else ""))
+    if def_blocks:
+        layers.append(DetailLayer(level="definition", title="定义展开", blocks=def_blocks[:8]))
+
+    referee_blocks = []
+    ctx = graph.context(node.context_id)
+    if ctx and ctx.assumptions:
+        referee_blocks.append("生效前提:" + ";".join(f"${a}$" for a in ctx.assumptions[:4]))
+    if node.local_assumptions:
+        referee_blocks.append("局部假设:" + ";".join(node.local_assumptions[:4]))
+    referee_blocks.extend(f"易错:{p}" for p in node.pitfalls)
+    obs = [o for o in graph.obligations if o.required_for_node == node.id]
+    referee_blocks.extend(f"义务[{o.status}]:{o.description}" for o in obs)
+    if referee_blocks:
+        layers.append(DetailLayer(level="referee", title="裁判检查", blocks=referee_blocks[:8]))
+    return layers
+
+
+def _capsule_for_node(graph: ProofGraph, node: ProofNode, extra_substeps: list[str] | None = None,
+                      detail_layers: list[DetailLayer] | None = None,
+                      contract: dict | None = None) -> StepCapsule:
     deps = graph.dependencies(node.id)
     outs = graph.dependents(node.id)
     incoming = graph.in_edges(node.id)
@@ -148,6 +197,9 @@ def _capsule_for_node(graph: ProofGraph, node: ProofNode, extra_substeps: list[s
         visual_refs=[f"v_{sid}" for sid in node.symbols_used],
         pitfalls=list(node.pitfalls),
         substeps=extra_substeps or _default_substeps(node),
+        detail_layers=detail_layers if detail_layers is not None
+        else _detail_layers_for_node(graph, node),
+        construction_contract=contract or {},
     )
 
 
@@ -249,7 +301,75 @@ def _build_pythagorean_scene(graph: ProofGraph) -> MathSceneSpec:
             "两边同时减去 2ab,得到 a^2+b^2=c^2。",
         ],
     }
-    capsules = [_capsule_for_node(graph, n, special.get(n.id)) for n in graph.nodes]
+    # 三个关键节点的"定义端 / 裁判层"深度展开(评审建议的 Definition / Referee 层)
+    deep_layers = {
+        "construct_outer_square": [
+            DetailLayer(level="definition", title="定义展开", blocks=[
+                "正方形(DEF-square):四边等长且四角为直角的简单四边形。",
+                "边长取 $a+b$:是为了让每条边恰好能被分成长 $a$ 与长 $b$ 的两段,容纳一个三角形的两条直角边。",
+            ]),
+            DetailLayer(level="referee", title="裁判检查", blocks=[
+                "前提:$a>0,\\ b>0$,否则分点退化。",
+                "需要验证:四条边上的分点位置一致(都是距离顶点 $a$ 处),否则后续拼接不闭合。",
+            ]),
+        ],
+        "place_four_triangles": [
+            DetailLayer(level="definition", title="定义展开", blocks=[
+                "全等(DEF-congruent-triangles):存在保持距离与角度的刚体运动把一个三角形映成另一个。",
+                "每个 $T_i$ 由原三角形旋转 90° 依次放置,刚体运动保持边长 $a,b,c$ 与直角。",
+            ]),
+            DetailLayer(level="referee", title="裁判检查", blocks=[
+                "需要验证:四个 $T_i$ 内部两两不交;它们与中心区域 $Q$ 恰好填满外部正方形 $S$。",
+                "需要验证:$Q$ 的边界恰由四条斜边组成,无缝隙、无重叠。",
+                "退化情形:$a=0$ 或 $b=0$ 时构造失效,已被前提排除。",
+            ]),
+        ],
+        "lemma_center_square": [
+            DetailLayer(level="definition", title="定义展开", blocks=[
+                "正方形定义:简单四边形,四边相等且四角为直角。",
+                "直角定义:角度为 $90^\\circ$。",
+                "三角形内角和(LEM-triangle-angle-sum):$\\alpha+\\beta+\\gamma=180^\\circ$;直角三角形两锐角互余(LEM-acute-complement)。",
+                "正方形面积(DEF-square-area):边长 $s$ 的正方形面积为 $s^2$。",
+            ]),
+            DetailLayer(level="referee", title="裁判检查", blocks=[
+                "四条边分别来自四个全等三角形的斜边 ⇒ 四边长度均为 $c$。",
+                "每个内角由相邻两个三角形的两个互余锐角拼成平角的剩余部分 ⇒ 均为 $90^\\circ$。",
+                "需要验证:$Q$ 是简单四边形(无自交、非退化、连通)。",
+                "不能只凭图形直觉断言 $Q$ 是正方形,必须给出上述两条验证。",
+            ]),
+        ],
+    }
+    contracts = {
+        "place_four_triangles": {
+            "node_id": "place_four_triangles",
+            "operation": "在外部正方形内放置四个全等直角三角形",
+            "inputs": ["原直角三角形 △ABC(直角边 a,b,斜边 c)", "外部正方形 S(边长 a+b)"],
+            "outputs": ["T_1, T_2, T_3, T_4", "中心区域 Q"],
+            "preconditions": ["a>0", "b>0", "△ABC 非退化"],
+            "invariants": ["每个 T_i ≅ △ABC", "每个 T_i 的斜边长为 c", "T_i 内部两两不交"],
+            "obligations": ["四个 T_i 与 Q 恰好填满 S", "Q 是简单四边形",
+                            "Q 的四边长度均为 c", "Q 的四角均为 90°"],
+            "degeneracy_warnings": ["a=0 或 b=0 时中心区域退化为整个 S 或一点"],
+        },
+        "construct_outer_square": {
+            "node_id": "construct_outer_square",
+            "operation": "构造边长为 a+b 的外部正方形",
+            "inputs": ["线段长度 a, b"],
+            "outputs": ["外部正方形 S", "四条边上的分点(距顶点 a 处)"],
+            "preconditions": ["a>0", "b>0"],
+            "invariants": ["S 的四边均为 a+b", "S 的四角均为直角"],
+            "obligations": ["四个分点位置一致,使三角形可无缝放置"],
+            "degeneracy_warnings": [],
+        },
+    }
+    capsules = [
+        _capsule_for_node(
+            graph, n, special.get(n.id),
+            detail_layers=_detail_layers_for_node(graph, n) + deep_layers.get(n.id, []),
+            contract=contracts.get(n.id),
+        )
+        for n in graph.nodes
+    ]
     diagram = DiagramSpec(
         id="diagram_pythagorean_area",
         graph_id=graph.id,
@@ -280,6 +400,16 @@ def _build_pythagorean_scene(graph: ProofGraph) -> MathSceneSpec:
         route=["设定直角三角形", "构造外部正方形", "放置四个全等三角形", "证明中心区域为 c²", "建立面积等式", "化简"],
         intuition_models=["同一总面积的两种分割", "公式项与区域高亮绑定", "消去相同区域得到剩余面积相等"],
         common_pitfalls=["不能只凭图形直觉断言中心区域是正方形。", "需要确认区域互不重叠且填满外部正方形。", "不要把 4·ab/2 错化简。"],
+        construction_rationale=[
+            {"question": "为什么这样构造?",
+             "answer": "目标 a²+b²=c² 的三个平方项暗示把边长看成正方形面积;直接比较不方便,于是构造一个公共大面积。"},
+            {"question": "为什么用边长 a+b 的大正方形?",
+             "answer": "展开 (a+b)² 后出现 2ab,而四个直角三角形总面积恰为 4·ab/2=2ab,可以被消去。"},
+            {"question": "证明路线是什么?",
+             "answer": "构造 → 面积分解 → 代数消去。"},
+            {"question": "哪里最容易错?",
+             "answer": "中心区域是正方形不能只靠图看,要验证四边等长与四角直角。"},
+        ],
     )
     return MathSceneSpec(
         id=new_id("scene"),
@@ -368,6 +498,14 @@ def _build_spectrum_scene(graph: ProofGraph) -> MathSceneSpec:
         route=["定义 M_a", "计算 M_a-λI", "按 λ 的位置分情况", "预解集:距离正", "点谱:命中坐标", "连续谱:闭包极限但未命中", "汇总谱分类"],
         intuition_models=["复平面点集模型", "距离 m_λ 控制逆算子范数", "c00 稠密解释连续谱值域稠密"],
         common_pitfalls=["不能把 λ∉A 误认为 dist(λ,A)>0。", "逐项可除不等于逆算子有界。", "连续谱需要单射、值域稠密且非满射/逆无界。"],
+        construction_rationale=[
+            {"question": "为什么按 λ 的位置分类?",
+             "answer": "M_a−λI 仍是乘法算子,其可逆性完全由系数 a_n−λ 的下确界决定,于是谱性质化为 λ 与点集 A 的几何位置关系。"},
+            {"question": "为什么引入距离 m_λ?",
+             "answer": "m_λ=inf|a_n−λ| 正是逆算子范数的倒数:m_λ>0 ⟺ 逆有界 ⟺ λ∈ρ(M_a)。"},
+            {"question": "哪里最容易错?",
+             "answer": "λ∉A 只保证逐项非零,不保证 m_λ>0;闭包边界点正是连续谱的来源。"},
+        ],
     )
     return MathSceneSpec(
         id=new_id("scene"),

@@ -45,6 +45,8 @@ class BackgroundSpec(IRModel):
     route: list = field(default_factory=list)
     intuition_models: list = field(default_factory=list)
     common_pitfalls: list = field(default_factory=list)
+    # 构造意图卡:[{"question": "...", "answer": "..."}],回答"为什么要这样构造"
+    construction_rationale: list = field(default_factory=list)
 
 
 @dataclass
@@ -75,6 +77,31 @@ class ObjectRegistry(IRModel):
 
 
 @dataclass
+class DetailLayer(IRModel):
+    """节点的可折叠细节层。level: intuition / proof / definition / referee。
+
+    主图保持骨架粒度;定义端展开、构造合法性、裁判式检查放进这里,
+    默认折叠,专业用户可逐层挖到底。
+    """
+    level: str = "proof"
+    title: str = ""
+    blocks: list = field(default_factory=list)      # 字符串列表(可含 LaTeX 行内 $..$)
+
+
+@dataclass
+class ConstructionContract(IRModel):
+    """构造节点的"合同":输入、操作、产物、前提、不变量与待证明义务。"""
+    node_id: str = ""
+    operation: str = ""
+    inputs: list = field(default_factory=list)
+    outputs: list = field(default_factory=list)
+    preconditions: list = field(default_factory=list)
+    invariants: list = field(default_factory=list)
+    obligations: list = field(default_factory=list)
+    degeneracy_warnings: list = field(default_factory=list)
+
+
+@dataclass
 class StepCapsule(IRModel):
     id: str = ""
     node_id: str = ""
@@ -93,6 +120,8 @@ class StepCapsule(IRModel):
     visual_refs: list = field(default_factory=list)
     pitfalls: list = field(default_factory=list)
     substeps: list = field(default_factory=list)
+    detail_layers: list = ir_list(DetailLayer)
+    construction_contract: dict = field(default_factory=dict)
 
 
 @dataclass

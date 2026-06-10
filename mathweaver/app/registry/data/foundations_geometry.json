@@ -48,6 +48,62 @@
       "statement_latex": "(a+b)^2=a^2+2ab+b^2",
       "explanation": "用于把面积等式化简为 a²+b²=c²。",
       "allowed_use": "代数化简步骤。"
+    },
+    {
+      "id": "DEF-right-angle",
+      "kind": "definition",
+      "name": "直角",
+      "statement_latex": "\\angle = 90^\\circ",
+      "explanation": "角度为 90° 的角。",
+      "allowed_use": "判定正方形内角与直角三角形。"
+    },
+    {
+      "id": "DEF-simple-polygon",
+      "kind": "definition",
+      "name": "简单多边形",
+      "statement_latex": "\\text{boundary is a non-self-intersecting closed polyline}",
+      "explanation": "边界不自交的闭合多边形;排除退化与自交情形。",
+      "allowed_use": "保证中心区域是良定义的四边形。"
+    },
+    {
+      "id": "DEF-square",
+      "kind": "definition",
+      "name": "正方形",
+      "statement_latex": "Q\\text{ square}\\iff Q\\text{ simple quadrilateral, 4 equal sides, 4 right angles}",
+      "explanation": "四边等长且四角为直角的简单四边形。判定必须同时验证两组条件,缺一不可(四边等长但角非直角的是菱形)。",
+      "allowed_use": "判定中心区域 Q 为正方形。"
+    },
+    {
+      "id": "DEF-congruent-triangles",
+      "kind": "definition",
+      "name": "三角形全等",
+      "statement_latex": "T_1\\cong T_2\\iff \\exists\\text{ rigid motion }\\varphi,\\ \\varphi(T_1)=T_2",
+      "explanation": "存在保持距离和角度的刚体运动(平移/旋转/反射)把一个映成另一个;对应边、对应角分别相等。",
+      "allowed_use": "保证放置的四个三角形与原三角形边角一致。"
+    },
+    {
+      "id": "AX-rigid-motion-preserves-length-angle",
+      "kind": "axiom",
+      "name": "刚体运动保长保角",
+      "statement_latex": "\\varphi\\text{ rigid}\\implies |\\varphi(x)-\\varphi(y)|=|x-y|",
+      "explanation": "平移、旋转、反射不改变长度与角度,因此也不改变面积。",
+      "allowed_use": "由全等推出四个三角形面积均为 ab/2、斜边均为 c。"
+    },
+    {
+      "id": "LEM-triangle-angle-sum",
+      "kind": "lemma",
+      "name": "三角形内角和",
+      "statement_latex": "\\alpha+\\beta+\\gamma=180^\\circ",
+      "explanation": "欧氏平面中三角形内角和为 180°。",
+      "allowed_use": "推出直角三角形两锐角互余。"
+    },
+    {
+      "id": "LEM-acute-complement",
+      "kind": "lemma",
+      "name": "直角三角形锐角互余",
+      "statement_latex": "\\gamma=90^\\circ\\implies\\alpha+\\beta=90^\\circ",
+      "explanation": "由内角和直接得到;是中心角为直角的关键。",
+      "allowed_use": "证明中心区域四个内角均为 90°。"
     }
   ]
 }

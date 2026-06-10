@@ -20,6 +20,24 @@ class LLMNotConfigured(RuntimeError):
     pass
 
 
+class LLMAuthError(RuntimeError):
+    """401/403:key 无效或无权限。重试无意义,立即失败并给出可操作的提示。"""
+
+
+# base_url → 实际可用的 chat/completions 端点(进程内缓存,避免每次探测)
+_resolved_endpoint: dict[str, str] = {}
+
+
+def _endpoint_candidates(base_url: str) -> list[str]:
+    """用户可能填 https://relay.com 或 https://relay.com/v1,两种都接受。"""
+    base = base_url.rstrip("/")
+    if base in _resolved_endpoint:
+        return [_resolved_endpoint[base]]
+    if base.endswith("/v1") or "/v1/" in base:
+        return [base + "/chat/completions"]
+    return [base + "/v1/chat/completions", base + "/chat/completions"]
+
+
 class LLMClient:
     def __init__(self):
         self.s = get_settings()
@@ -35,7 +53,8 @@ class LLMClient:
         s = get_settings()
         if not (s.get("llm_base_url") and s.get("llm_api_key")):
             raise LLMNotConfigured("未配置 LLM(base_url / api_key),当前为 demo 模式")
-        url = s["llm_base_url"].rstrip("/") + "/chat/completions"
+        base = s["llm_base_url"].rstrip("/")
+        candidates = _endpoint_candidates(base)
         headers = {"Authorization": f"Bearer {s['llm_api_key']}",
                    "Content-Type": "application/json; charset=utf-8"}
         # 显式 UTF-8 编码请求体:requests 的 json= 默认 ensure_ascii,
@@ -43,19 +62,30 @@ class LLMClient:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         last_err: Exception | None = None
         for attempt in range(int(s.get("llm_max_retries", 3))):
-            try:
-                resp = requests.post(url, headers=headers, data=body,
-                                     timeout=float(s.get("llm_timeout", 120)),
-                                     stream=stream)
-                if resp.status_code in (429, 500, 502, 503, 504):
-                    last_err = RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
-                    time.sleep(min(2 ** attempt * 1.5, 12))
-                    continue
-                resp.raise_for_status()
-                return resp
-            except (requests.Timeout, requests.ConnectionError) as e:
-                last_err = e
-                time.sleep(min(2 ** attempt * 1.5, 12))
+            for url in list(candidates):
+                try:
+                    resp = requests.post(url, headers=headers, data=body,
+                                         timeout=float(s.get("llm_timeout", 120)),
+                                         stream=stream)
+                    if resp.status_code in (401, 403):
+                        raise LLMAuthError(
+                            f"HTTP {resp.status_code}:API key 无效或无权限"
+                            f"({resp.text[:160]})。请在设置中检查 base_url 与 api_key。")
+                    if resp.status_code == 404 and len(candidates) > 1:
+                        # 路径不对(如缺 /v1):换下一个候选端点,本轮不计入重试
+                        candidates.remove(url)
+                        last_err = RuntimeError(f"HTTP 404 at {url}")
+                        continue
+                    if resp.status_code in (429, 500, 502, 503, 504):
+                        last_err = RuntimeError(f"HTTP {resp.status_code}: {resp.text[:200]}")
+                        break          # 跳出候选循环,走退避重试
+                    resp.raise_for_status()
+                    _resolved_endpoint[base] = url
+                    return resp
+                except (requests.Timeout, requests.ConnectionError) as e:
+                    last_err = e
+                    break
+            time.sleep(min(2 ** attempt * 1.5, 12))
         raise RuntimeError(f"LLM 请求失败(已重试): {last_err}")
 
     # ------------------------------------------------------------- 普通对话
@@ -141,4 +171,38 @@ def extract_json(text: str) -> dict | list:
                 return json.loads(frag)
             except json.JSONDecodeError:
                 continue
+    repaired = _balance_truncated_json(t)
+    if repaired is not None:
+        return repaired
     raise ValueError("JSON 解析失败(可能被截断或含非法转义)")
+
+
+def _balance_truncated_json(t: str) -> dict | list | None:
+    """输出在中途被截断时,砍掉残缺的尾部并补齐未闭合的括号。"""
+    # 截到最后一个完整的值边界(闭括号或引号后的逗号),再补闭合符
+    cut = max(t.rfind("}"), t.rfind("]"), t.rfind('",'), t.rfind('"'))
+    if cut <= 0:
+        return None
+    frag = t[:cut + 1].rstrip().rstrip(",")
+    stack = []
+    in_str = escape = False
+    for ch in frag:
+        if escape:
+            escape = False
+            continue
+        if ch == "\\":
+            escape = in_str
+        elif ch == '"':
+            in_str = not in_str
+        elif not in_str:
+            if ch in "{[":
+                stack.append("}" if ch == "{" else "]")
+            elif ch in "}]" and stack:
+                stack.pop()
+    if in_str:
+        frag += '"'
+    frag += "".join(reversed(stack))
+    try:
+        return json.loads(frag)
+    except json.JSONDecodeError:
+        return None

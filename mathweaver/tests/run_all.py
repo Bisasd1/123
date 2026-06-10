@@ -219,6 +219,44 @@ def t_open_domain():
         a.get("name") == "有理数定义" for a in trace_node(g2, "contradiction")["foundation_anchors"]))
 
 
+def t_detail_layers():
+    print("[7b] 细节层 / 构造合同 / 触发词")
+    pg = ProofGraph.from_dict(PYTH)
+    ps = build_math_scene(pg)
+    cap_center = next(c for c in ps.step_capsules if c.node_id == "lemma_center_square")
+    levels = {l.level for l in cap_center.detail_layers}
+    check("中心正方形节点有定义层+裁判层", {"definition", "referee"}.issubset(levels))
+    cap_place = next(c for c in ps.step_capsules if c.node_id == "place_four_triangles")
+    ct = cap_place.construction_contract
+    check("放置三角形节点有构造合同", bool(ct.get("operation")) and len(ct.get("obligations", [])) >= 3)
+    check("总览有构造意图卡", len(ps.background.construction_rationale) >= 3)
+
+    spec = ProblemSpec(id="p", raw_input="证明 √2 是无理数")
+    g = _plan_to_graph(spec, _OPEN_PLAN)
+    sc = build_math_scene(g)
+    cap = next(c for c in sc.step_capsules if c.node_id == "assume_rational")
+    check("开放域节点自动生成细节层", len(cap.detail_layers) >= 2)
+    check("开放域定义层解析本题基础", any(
+        l.level == "definition" and any("有理数定义" in b for b in l.blocks)
+        for l in cap.detail_layers))
+
+    from app.server import looks_like_problem
+    check("『证明根号2是无理数』触发流水线", looks_like_problem("证明根号2是无理数"))
+    check("『实数集合是完备的』触发流水线", looks_like_problem("实数集合是完备的"))
+    check("闲聊不触发流水线", not looks_like_problem("你好,今天天气怎么样"))
+
+    from app.core.llm_client import extract_json
+    truncated = '{"title": "t", "steps": [{"id": "s1", "natural": "第一步"}, {"id": "s2", "natural": "第二'
+    data = extract_json(truncated)
+    check("截断 JSON 括号配平修复", isinstance(data, dict) and data.get("title") == "t")
+
+    reg = get_registry()
+    pid, _ = reg.match_pattern("用面积法证明勾股定理,直角三角形两直角边为 a,b,斜边为 c")
+    check("勾股输入命中面积法 pattern", pid == "pythagorean_area_proof")
+    check("遗留 pythagorean_theorem pattern 已移除", "pythagorean_theorem" not in reg.patterns)
+    check("新几何定义原子已加载", reg.has_ref("DEF-square") and reg.has_ref("LEM-acute-complement"))
+
+
 def t_flask():
     print("[8] Flask API 端到端")
     from app.server import create_app
@@ -245,7 +283,7 @@ def t_flask():
 
 if __name__ == "__main__":
     for t in (t_registry, t_golden, t_pathologies, t_trace_and_patch, t_mathscene,
-              t_pipeline_demo, t_open_domain, t_flask):
+              t_pipeline_demo, t_open_domain, t_detail_layers, t_flask):
         t()
     print(f"\n{'='*46}\n通过 {len(PASSED)} / {len(PASSED)+len(FAILED)}" + (f"  失败: {FAILED}" if FAILED else "  全部通过 ✓"))
     sys.exit(1 if FAILED else 0)

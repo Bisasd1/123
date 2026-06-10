@@ -21,6 +21,8 @@ GOLDEN_DIR = Path(__file__).resolve().parents[1] / "registry" / "data" / "golden
 GOLDEN_BY_PATTERN = {
     "diagonal_operator_spectral_classification": GOLDEN_DIR / "diagonal_operator_graph.json",
     "pythagorean_area_proof": GOLDEN_DIR / "pythagorean_area_graph.json",
+    # 旧版 pattern id(已并入面积法):历史会话里的图谱仍可能携带它
+    "pythagorean_theorem": GOLDEN_DIR / "pythagorean_area_graph.json",
 }
 
 
@@ -539,14 +541,20 @@ def synthesize_solution(graph: ProofGraph, spec: ProblemSpec | None = None):
     messages = [{"role": "system", "content": SOLUTION_SYSTEM},
                 {"role": "user", "content": json.dumps(digest, ensure_ascii=False)}]
     produced = False
+    failed_midway = False
     try:
-        for piece in client.chat_stream(messages, heavy=True, temperature=0.3, max_tokens=4000):
+        for piece in client.chat_stream(messages, heavy=True, temperature=0.3, max_tokens=6000):
             if piece:
                 produced = True
                 yield piece
     except (RuntimeError, LLMNotConfigured):
+        failed_midway = produced
         produced = False
     if not produced:
+        # 完全没产出 → 直接确定性重建;中途断流 → 补一份完整的确定性版本,
+        # 保证用户永远拿到一篇完整解答(结构图是事实来源,重建不依赖在线服务)。
+        if failed_midway:
+            yield "\n\n---\n\n> 在线生成中断,以下为据结构图确定性重建的完整解答。\n\n"
         yield from _deterministic_solution(graph)
 
 
