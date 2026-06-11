@@ -38,6 +38,25 @@ def _endpoint_candidates(base_url: str) -> list[str]:
     return [base + "/v1/chat/completions", base + "/chat/completions"]
 
 
+# 部分中转站套了 Cloudflare:默认的 python-requests UA 会被人机验证拦截(403
+# "Just a moment...")。统一带浏览器 UA 可绕过纯 UA 规则;若是 IP 级挑战则需换网络。
+BROWSER_HEADERS = {
+    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                   "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"),
+    "Accept": "application/json",
+    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+}
+
+
+def is_cloudflare_challenge(resp) -> bool:
+    """403/503 且响应体是 Cloudflare 人机验证页(不是中转站自己的拒绝)。"""
+    if resp.status_code not in (403, 503):
+        return False
+    text = (resp.text or "")[:2000]
+    return ("Just a moment" in text or "cf-chl" in text
+            or "challenge-platform" in text or "cloudflare" in text.lower())
+
+
 class LLMClient:
     def __init__(self):
         self.s = get_settings()
@@ -55,7 +74,8 @@ class LLMClient:
             raise LLMNotConfigured("未配置 LLM(base_url / api_key),当前为 demo 模式")
         base = s["llm_base_url"].rstrip("/")
         candidates = _endpoint_candidates(base)
-        headers = {"Authorization": f"Bearer {s['llm_api_key']}",
+        headers = {**BROWSER_HEADERS,
+                   "Authorization": f"Bearer {s['llm_api_key']}",
                    "Content-Type": "application/json; charset=utf-8"}
         # 显式 UTF-8 编码请求体:requests 的 json= 默认 ensure_ascii,
         # 中文会被转义成 \uXXXX,部分中转站按字符数计费/截断时会出问题。
@@ -68,6 +88,11 @@ class LLMClient:
                                          timeout=float(s.get("llm_timeout", 120)),
                                          stream=stream)
                     if resp.status_code in (401, 403):
+                        if is_cloudflare_challenge(resp):
+                            raise RuntimeError(
+                                "请求被 Cloudflare 人机验证拦截(非 key 问题)。"
+                                "请改用该中转站的 API 专用域名(查看其控制台文档),"
+                                "或从未被挑战的网络环境(如本地家庭网络)访问。")
                         raise LLMAuthError(
                             f"HTTP {resp.status_code}:API key 无效或无权限"
                             f"({resp.text[:160]})。请在设置中检查 base_url 与 api_key。")

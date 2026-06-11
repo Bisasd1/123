@@ -41,20 +41,32 @@ def check(name: str, cond: bool, detail: str = ""):
 
 
 def probe_models(base: str, key: str) -> tuple[str, list[str]]:
-    """返回 (可用 base_url, 模型 id 列表)。自动尝试补 /v1。"""
-    headers = {"Authorization": f"Bearer {key}"}
+    """返回 (可用 base_url, 模型 id 列表)。自动尝试补 /v1,带浏览器 UA 防 CF 误拦。"""
+    from app.core.llm_client import BROWSER_HEADERS, is_cloudflare_challenge
+    headers = {**BROWSER_HEADERS, "Authorization": f"Bearer {key}"}
     cands = [base.rstrip("/")]
     if not cands[0].endswith("/v1"):
         cands.insert(0, cands[0] + "/v1")
+    cf_blocked = False
     for b in cands:
         try:
             r = requests.get(b + "/models", headers=headers, timeout=20)
             if r.status_code == 200:
                 ids = [m.get("id") for m in r.json().get("data", [])]
                 return b, ids
-            print(f"  [{b}/models] HTTP {r.status_code}: {r.text[:120]}")
+            if is_cloudflare_challenge(r):
+                cf_blocked = True
+                print(f"  [{b}/models] HTTP {r.status_code}: Cloudflare 人机验证页(非 key 问题)")
+            else:
+                print(f"  [{b}/models] HTTP {r.status_code}: {r.text[:120]}")
         except requests.RequestException as e:
             print(f"  [{b}/models] {type(e).__name__}: {str(e)[:120]}")
+    if cf_blocked:
+        print("\n  ⚠ 当前网络环境被该站点的 Cloudflare 防护拦截。可尝试:")
+        print("    1. 登录中转站控制台,查看文档给出的「API 专用域名」(常见为 api.xxx 或另一个直连域名),")
+        print("       用 --base 改填那个域名;")
+        print("    2. 在本地电脑(家庭/手机网络)运行本脚本——数据中心/海外 IP 最容易被挑战;")
+        print("    3. 部分站点提供免 CF 的备用端口/线路,详见其公告。")
     return "", []
 
 
