@@ -135,6 +135,10 @@ def main():
     if not (args.base and args.key):
         print("缺少 base_url / api_key:用 --base/--key 或环境变量 LLM_BASE_URL/LLM_API_KEY 提供")
         return 2
+    if not args.key.isascii() or " " in args.key.strip():
+        print(f"api_key 看起来不合法:{args.key[:20]!r}…")
+        print("提示:把命令里的占位符替换成真实 key(以 sk- 开头的一长串字符)。")
+        return 2
 
     print("[1] 端点探测")
     base, ids = probe_models(args.base, args.key)

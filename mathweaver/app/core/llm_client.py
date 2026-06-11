@@ -72,6 +72,9 @@ class LLMClient:
         s = get_settings()
         if not (s.get("llm_base_url") and s.get("llm_api_key")):
             raise LLMNotConfigured("未配置 LLM(base_url / api_key),当前为 demo 模式")
+        if not str(s["llm_api_key"]).isascii():
+            raise LLMNotConfigured(
+                "api_key 含非 ASCII 字符(疑似占位符未替换),请在设置中填入真实 key。")
         base = s["llm_base_url"].rstrip("/")
         candidates = _endpoint_candidates(base)
         headers = {**BROWSER_HEADERS,
