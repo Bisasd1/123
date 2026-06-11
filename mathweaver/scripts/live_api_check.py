@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -73,7 +74,16 @@ def probe_models(base: str, key: str) -> tuple[str, list[str]]:
 def pick_model(ids: list[str], preferred: str) -> str:
     if preferred and (not ids or preferred in ids):
         return preferred
-    for kw in ("claude-sonnet", "claude", "gpt-4o", "gpt-4", "deepseek", "qwen"):
+    if preferred:
+        # 模糊匹配:用户给的名字按 token 拆开,找包含全部 token 的真实模型 id
+        tokens = [t for t in re.split(r"[\s\-_./]+", preferred.lower()) if t]
+        fuzzy = [i for i in ids if i and all(t in i.lower() for t in tokens)]
+        if fuzzy:
+            fuzzy.sort(key=len)               # 最短的通常是主版本,而非 -preview-0x 变体
+            print(f"    模型『{preferred}』模糊匹配到: {fuzzy[0]}")
+            return fuzzy[0]
+        print(f"    ⚠ 模型『{preferred}』不在该站列表中,自动改选其他模型")
+    for kw in ("claude-sonnet", "claude", "gemini", "gpt-4o", "gpt-4", "deepseek", "qwen"):
         hit = next((i for i in ids if i and kw in i.lower()), None)
         if hit:
             return hit
@@ -155,8 +165,12 @@ def main():
     if not base:
         print("\n端点不可达,请检查 base_url、key 或网络。")
         return 1
+    if ids:
+        gemini_like = [i for i in ids if i and "gemini" in i.lower()]
+        sample = (gemini_like or ids)[:15]
+        print(f"    可用模型 {len(ids)} 个,示例: {sample}")
     model = pick_model(ids, args.model)
-    print(f"    base={base}  可用模型 {len(ids)} 个,选用: {model}")
+    print(f"    base={base}  选用模型: {model}")
 
     # 配置写入 var/settings.json(gitignore 内,不会进仓库);Web UI 即时生效
     from app.core.config import update_settings
