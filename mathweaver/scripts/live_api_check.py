@@ -118,21 +118,25 @@ def run_problem(tag: str, text: str):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--base", default=os.environ.get("LLM_BASE_URL", ""))
+    ap.add_argument("--base", action="append", default=None,
+                    help="候选 base_url,可多次给出或用逗号分隔;逐个尝试直到成功")
     ap.add_argument("--key", default=os.environ.get("LLM_API_KEY", ""))
     ap.add_argument("--model", default=os.environ.get("LLM_MODEL", ""))
     ap.add_argument("--problem", action="append", default=[],
                     help="追加任意验收题(可多次)")
     args = ap.parse_args()
 
+    # --base 支持多次给出与逗号分隔
+    bases = [b.strip() for raw in (args.base or [os.environ.get("LLM_BASE_URL", "")])
+             for b in raw.split(",") if b.strip()]
     # 未显式给出时,回退到 var/settings.json 已保存的配置
-    if not (args.base and args.key):
+    if not (bases and args.key):
         from app.core.config import get_settings
         s = get_settings()
-        args.base = args.base or s.get("llm_base_url", "")
+        bases = bases or ([s["llm_base_url"]] if s.get("llm_base_url") else [])
         args.key = args.key or s.get("llm_api_key", "")
         args.model = args.model or s.get("llm_model_heavy", "")
-    if not (args.base and args.key):
+    if not (bases and args.key):
         print("缺少 base_url / api_key:用 --base/--key 或环境变量 LLM_BASE_URL/LLM_API_KEY 提供")
         return 2
     if not args.key.isascii() or " " in args.key.strip():
@@ -140,8 +144,13 @@ def main():
         print("提示:把命令里的占位符替换成真实 key(以 sk- 开头的一长串字符)。")
         return 2
 
-    print("[1] 端点探测")
-    base, ids = probe_models(args.base, args.key)
+    print(f"[1] 端点探测({len(bases)} 个候选)")
+    base, ids = "", []
+    for cand in bases:
+        print(f"  → 尝试 {cand}")
+        base, ids = probe_models(cand, args.key)
+        if base:
+            break
     check("/models 可达", bool(base), "所有候选端点都失败")
     if not base:
         print("\n端点不可达,请检查 base_url、key 或网络。")
